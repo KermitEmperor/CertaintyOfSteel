@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.kermir.certaintyofsteel.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "certaintyofsteel.refmap.json",
+  "mixins": [
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
