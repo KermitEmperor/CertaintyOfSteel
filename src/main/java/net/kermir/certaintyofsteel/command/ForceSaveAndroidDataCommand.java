@@ -22,6 +22,7 @@ public class ForceSaveAndroidDataCommand {
 
     private static int forceSave(CommandSourceStack sourceStack) {
         DimensionDataStorage dataStorage = CommandUtil.getDataStorage(sourceStack);
+        CommandUtil.getAndroidSD(dataStorage).setDirty();
         dataStorage.save();
 
 

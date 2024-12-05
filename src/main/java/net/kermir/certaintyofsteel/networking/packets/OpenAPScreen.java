@@ -3,7 +3,7 @@ package net.kermir.certaintyofsteel.networking.packets;
 
 import net.kermir.certaintyofsteel.networking.packets.util.sample.GetAndroidPlayerPacket;
 import net.kermir.certaintyofsteel.android.AndroidPlayer;
-import net.kermir.certaintyofsteel.screen.AndroidAbilitiesScreen;
+import net.kermir.certaintyofsteel.screen.android.AndroidAbilitiesScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.network.FriendlyByteBuf;

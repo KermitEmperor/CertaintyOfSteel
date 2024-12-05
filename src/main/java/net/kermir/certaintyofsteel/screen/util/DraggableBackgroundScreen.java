@@ -80,4 +80,12 @@ public class DraggableBackgroundScreen extends Screen {
         if (pWidget instanceof AbstractWidget abstractWidget) draggableWidgets.add(abstractWidget);
         return super.addRenderableWidget(pWidget);
     }
+
+    @Override
+    protected void removeWidget(GuiEventListener pListener) {
+        if (pListener instanceof AbstractWidget abstractWidget) {
+            draggableWidgets.remove(abstractWidget);
+        }
+        super.removeWidget(pListener);
+    }
 }

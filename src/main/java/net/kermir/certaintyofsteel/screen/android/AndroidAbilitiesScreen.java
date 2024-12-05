@@ -1,15 +1,18 @@
-package net.kermir.certaintyofsteel.screen;
+package net.kermir.certaintyofsteel.screen.android;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.kermir.certaintyofsteel.android.AndroidPlayer;
+import net.kermir.certaintyofsteel.screen.android.util.AndroidScreen;
+import net.kermir.certaintyofsteel.screen.android.util.AndroidScreens;
+import net.kermir.certaintyofsteel.screen.android.widgets.AbilityWidget;
 import net.kermir.certaintyofsteel.screen.util.DraggableBackgroundScreen;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.TextComponent;
 import org.jetbrains.annotations.NotNull;
 
-public class AndroidAbilitiesScreen extends DraggableBackgroundScreen {
+public class AndroidAbilitiesScreen extends DraggableBackgroundScreen implements AndroidScreen {
     private AndroidPlayer android;
 
 
@@ -21,6 +24,7 @@ public class AndroidAbilitiesScreen extends DraggableBackgroundScreen {
     @Override
     protected void init() {
         this.addRenderableDraggableWidget(new Button(this.width/2+20, this.height/2-30, 20, 16, new TextComponent("Sex"), (button) -> { }));
+        this.addRenderableDraggableWidget(new AbilityWidget(this.width/2, this.height/2, new TextComponent("a"), this::addRenderableDraggableWidget, this::removeWidget));
         super.init();
     }
 
@@ -45,5 +49,10 @@ public class AndroidAbilitiesScreen extends DraggableBackgroundScreen {
     @Override
     public boolean isPauseScreen() {
         return false;
+    }
+
+    @Override
+    public AndroidScreens getScreenType() {
+        return AndroidScreens.ABILITIES;
     }
 }
