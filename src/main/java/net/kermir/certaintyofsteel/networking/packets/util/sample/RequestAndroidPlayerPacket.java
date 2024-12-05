@@ -1,4 +1,4 @@
-package net.kermir.certaintyofsteel.networking.packets.util;
+package net.kermir.certaintyofsteel.networking.packets.util.sample;
 
 import net.kermir.certaintyofsteel.CertaintyOfSteel;
 import net.minecraft.network.FriendlyByteBuf;
@@ -7,7 +7,6 @@ import net.minecraftforge.network.NetworkEvent;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-@SuppressWarnings("ConstantValue")
 public class RequestAndroidPlayerPacket {
     protected UUID uuid;
 

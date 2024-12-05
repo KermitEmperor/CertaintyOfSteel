@@ -2,7 +2,7 @@ package net.kermir.certaintyofsteel.networking.packets;
 
 import net.kermir.certaintyofsteel.CertaintyOfSteel;
 import net.kermir.certaintyofsteel.networking.PacketChannel;
-import net.kermir.certaintyofsteel.networking.packets.util.RequestAndroidPlayerPacket;
+import net.kermir.certaintyofsteel.networking.packets.util.sample.RequestAndroidPlayerPacket;
 import net.kermir.certaintyofsteel.player.android.AndroidPlayer;
 import net.kermir.certaintyofsteel.save.AndroidsSD;
 import net.minecraft.network.FriendlyByteBuf;

@@ -1,6 +1,7 @@
-package net.kermir.certaintyofsteel.networking.packets.util;
+package net.kermir.certaintyofsteel.networking.packets.util.sample;
 
 import net.kermir.certaintyofsteel.CertaintyOfSteel;
+import net.kermir.certaintyofsteel.networking.packets.util.PacketObjectUtil;
 import net.kermir.certaintyofsteel.player.android.AndroidPlayer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
@@ -19,12 +20,12 @@ public class GetAndroidPlayerPacket {
 
     public GetAndroidPlayerPacket(FriendlyByteBuf buf) {
         this.androidUUID = buf.readUUID();
-        this.android = AndroidPlayer.readPacket(buf);
+        this.android = PacketObjectUtil.readPacket(buf);
     }
 
     public void encode(FriendlyByteBuf buf) {
         buf.writeUUID(this.androidUUID);
-        this.android.writePacket(buf);
+        PacketObjectUtil.writePacket(buf, this.android);
     }
 
     public boolean handle(Supplier<NetworkEvent.Context> contextSupplier) {

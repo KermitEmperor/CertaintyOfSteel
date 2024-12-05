@@ -1,9 +1,11 @@
 package net.kermir.certaintyofsteel.networking.packets;
 
-import net.kermir.certaintyofsteel.networking.packets.util.GetAndroidPlayerPacket;
+
+import net.kermir.certaintyofsteel.networking.packets.util.sample.GetAndroidPlayerPacket;
 import net.kermir.certaintyofsteel.player.android.AndroidPlayer;
 import net.kermir.certaintyofsteel.screen.AndroidAbilitiesScreen;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 
@@ -29,7 +31,11 @@ public class OpenAPScreen extends GetAndroidPlayerPacket {
         context.enqueueWork(() -> {
             Minecraft mc = Minecraft.getInstance();
             if (mc.getConnection() == null) return;
-            String playerName = mc.getConnection().getPlayerInfo(uuid).getProfile().getName();
+            PlayerInfo playerInfo = mc.getConnection().getPlayerInfo(uuid);
+            String playerName;
+            if (playerInfo != null)
+                playerName = playerInfo.getProfile().getName();
+            else playerName = "null";
             mc.setScreen(new AndroidAbilitiesScreen(playerName, recievedAndroid));
         });
 
