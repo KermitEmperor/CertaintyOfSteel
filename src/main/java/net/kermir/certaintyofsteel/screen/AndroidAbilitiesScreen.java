@@ -2,7 +2,7 @@ package net.kermir.certaintyofsteel.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.kermir.certaintyofsteel.player.android.AndroidPlayer;
+import net.kermir.certaintyofsteel.android.AndroidPlayer;
 import net.kermir.certaintyofsteel.screen.util.DraggableBackgroundScreen;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.renderer.GameRenderer;

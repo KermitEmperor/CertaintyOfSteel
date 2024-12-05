@@ -1,6 +1,6 @@
 package net.kermir.certaintyofsteel.networking.packets.util.sample;
 
-import net.kermir.certaintyofsteel.player.android.AndroidPlayer;
+import net.kermir.certaintyofsteel.android.AndroidPlayer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 

@@ -45,7 +45,7 @@ public class DraggableBackgroundScreen extends Screen {
 
     @Override
     public boolean mouseDragged(double pMouseX, double pMouseY, int pButton, double pDragX, double pDragY) {
-        if (pButton == 0) {
+        if (pButton == 1) {
             if (!isDragging) {
                 isDragging = true;
                 lastMouseX = pMouseX;
@@ -68,7 +68,7 @@ public class DraggableBackgroundScreen extends Screen {
 
     @Override
     public boolean mouseReleased(double pMouseX, double pMouseY, int pButton) {
-        if (pButton == 0) {
+        if (pButton == 1) {
             // End dragging
             isDragging = false;
         }

@@ -13,4 +13,8 @@ public class CommandUtil {
     public static AndroidsSD getAndroidSD(CommandSourceStack sourceStack) {
         return getDataStorage(sourceStack).get(AndroidsSD::load, AndroidsSD.ID);
     }
+
+    public static AndroidsSD getAndroidSD(DimensionDataStorage dataStorage) {
+        return dataStorage.get(AndroidsSD::load, AndroidsSD.ID);
+    }
 }

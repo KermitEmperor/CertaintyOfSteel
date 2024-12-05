@@ -6,16 +6,13 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.kermir.certaintyofsteel.command.util.CommandUtil;
 import net.kermir.certaintyofsteel.networking.PacketChannel;
 import net.kermir.certaintyofsteel.networking.packets.OpenAPScreen;
-import net.kermir.certaintyofsteel.player.android.AndroidPlayer;
+import net.kermir.certaintyofsteel.android.AndroidPlayer;
 import net.kermir.certaintyofsteel.save.AndroidsSD;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.storage.DimensionDataStorage;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class OpenAPScreenCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher){

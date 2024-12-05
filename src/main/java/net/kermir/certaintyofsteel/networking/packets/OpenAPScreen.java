@@ -2,7 +2,7 @@ package net.kermir.certaintyofsteel.networking.packets;
 
 
 import net.kermir.certaintyofsteel.networking.packets.util.sample.GetAndroidPlayerPacket;
-import net.kermir.certaintyofsteel.player.android.AndroidPlayer;
+import net.kermir.certaintyofsteel.android.AndroidPlayer;
 import net.kermir.certaintyofsteel.screen.AndroidAbilitiesScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
@@ -24,7 +24,8 @@ public class OpenAPScreen extends GetAndroidPlayerPacket {
     @Override
     public boolean handle(Supplier<NetworkEvent.Context> contextSupplier) {
         NetworkEvent.Context context = contextSupplier.get();
-        AndroidPlayer recievedAndroid = this.android;
+        AndroidPlayer androidPlayer = new AndroidPlayer();
+        androidPlayer.deserializeNBT(this.androidTag);
         UUID uuid = this.androidUUID;
 
         //we are on client here
@@ -36,7 +37,7 @@ public class OpenAPScreen extends GetAndroidPlayerPacket {
             if (playerInfo != null)
                 playerName = playerInfo.getProfile().getName();
             else playerName = "null";
-            mc.setScreen(new AndroidAbilitiesScreen(playerName, recievedAndroid));
+            mc.setScreen(new AndroidAbilitiesScreen(playerName, androidPlayer));
         });
 
         return true;
