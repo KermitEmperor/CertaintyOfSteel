@@ -2,19 +2,13 @@ package net.kermir.certaintyofsteel.save;
 
 import net.kermir.certaintyofsteel.CertaintyOfSteel;
 import net.kermir.certaintyofsteel.player.android.AndroidPlayer;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.saveddata.SavedData;
-import net.minecraft.world.level.storage.DimensionDataStorage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
-import java.util.Optional;
 import java.util.UUID;
 
 public class AndroidsSD extends SavedData {
@@ -67,7 +61,7 @@ public class AndroidsSD extends SavedData {
         for (String stringUUID : androidlist.getAllKeys()) {
             AndroidPlayer androidPlayer = new AndroidPlayer();
 
-            androidPlayer.deserialize(androidlist.getCompound(stringUUID));
+            androidPlayer.load(androidlist.getCompound(stringUUID));
 
             androids.put(UUID.fromString(stringUUID), androidPlayer);
         }
@@ -93,7 +87,7 @@ public class AndroidsSD extends SavedData {
 
         CompoundTag androidlist = new CompoundTag();
         for (UUID uuid : androids.keySet()) {
-            androidlist.put(uuid.toString(), androids.get(uuid).serialize());
+            androidlist.put(uuid.toString(), androids.get(uuid).save());
         }
 
         nbt.put("AndroidList", androidlist);

@@ -3,6 +3,7 @@ package net.kermir.certaintyofsteel.command;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import net.kermir.certaintyofsteel.CertaintyOfSteel;
+import net.kermir.certaintyofsteel.command.util.CommandUtil;
 import net.kermir.certaintyofsteel.save.AndroidsSD;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
@@ -53,15 +54,11 @@ public class AndroidDataCommand {
 
 
     private static int getData(CommandSourceStack sourceStack, ServerPlayer pTarget) {
-        AndroidsSD androidData = getDataStorage(sourceStack).get(AndroidsSD::load, AndroidsSD.ID);
+        AndroidsSD androidData = CommandUtil.getAndroidSD(sourceStack);
 
         pTarget.sendMessage(new TextComponent(String.format("%s", androidData.getAndroids().containsKey(pTarget.getUUID()))), Util.NIL_UUID);
         sourceStack.sendSuccess(new TextComponent("success"), false);
 
         return Command.SINGLE_SUCCESS;
-    }
-
-    private static DimensionDataStorage getDataStorage(CommandSourceStack sourceStack) {
-        return sourceStack.getLevel().getServer().overworld().getDataStorage();
     }
 }

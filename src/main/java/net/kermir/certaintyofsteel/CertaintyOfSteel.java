@@ -3,27 +3,20 @@ package net.kermir.certaintyofsteel;
 import com.mojang.logging.LogUtils;
 import net.kermir.certaintyofsteel.command.AndroidDataCommand;
 import net.kermir.certaintyofsteel.command.ForceSaveAndroidDataCommand;
+import net.kermir.certaintyofsteel.command.OpenAPScreenCommand;
 import net.kermir.certaintyofsteel.command.SetAndroidCommand;
 import net.kermir.certaintyofsteel.keybinds.KeyBinding;
+import net.kermir.certaintyofsteel.networking.PacketChannel;
+import net.kermir.certaintyofsteel.networking.packets.RequestAPScreen;
 import net.kermir.certaintyofsteel.save.AndroidsSD;
-import net.kermir.certaintyofsteel.screen.AndroidMenu;
-import net.kermir.certaintyofsteel.screen.AndroidScreen;
 import net.kermir.certaintyofsteel.screen.MenuTypeRegistires;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.LevelEvent;
-import net.minecraft.world.level.storage.DimensionDataStorage;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -34,13 +27,8 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
-import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
-
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(CertaintyOfSteel.MOD_ID)
@@ -72,8 +60,7 @@ public class CertaintyOfSteel {
 
     private void setup(final FMLCommonSetupEvent event) {
         // Some preinit code
-        LOGGER.info("HELLO FROM PREINIT");
-        LOGGER.info("DIRT BLOCK >> {}", Blocks.DIRT.getRegistryName());
+        PacketChannel.register();
     }
 
     public void clientSetup(final FMLClientSetupEvent event) {
@@ -99,6 +86,7 @@ public class CertaintyOfSteel {
         AndroidDataCommand.register(event.getDispatcher());
         SetAndroidCommand.register(event.getDispatcher());
         ForceSaveAndroidDataCommand.register(event.getDispatcher());
+        OpenAPScreenCommand.register(event.getDispatcher());
     }
 
     public void onLevelLoad(final WorldEvent.Load event) {
@@ -116,8 +104,10 @@ public class CertaintyOfSteel {
         final Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
+
         if (KeyBinding.OPEN_ANDROID_MENU_KEY.consumeClick()) {
-            mc.setScreen(new AndroidScreen(null));
+            //mc.setScreen(new AndroidScreen(mc.player.getDisplayName().getString(), null));
+            PacketChannel.sendToServer(new RequestAPScreen(mc.player.getUUID()));
         }
     }
 }

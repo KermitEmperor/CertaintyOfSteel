@@ -2,6 +2,7 @@ package net.kermir.certaintyofsteel.command;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
+import net.kermir.certaintyofsteel.command.util.CommandUtil;
 import net.kermir.certaintyofsteel.save.AndroidsSD;
 import net.minecraft.Util;
 import net.minecraft.commands.CommandSourceStack;
@@ -54,7 +55,7 @@ public class SetAndroidCommand {
         AtomicBoolean ret = new AtomicBoolean(true);
         AtomicBoolean isAndroidAlready = new AtomicBoolean(false);
 
-        AndroidsSD androidData = getDataStorage(sourceStack).get(AndroidsSD::load, AndroidsSD.ID);
+        AndroidsSD androidData = CommandUtil.getAndroidSD(sourceStack);
         ret.set(ret.get() | androidData != null);
         if (androidData != null) {
             isAndroidAlready.set(!androidData.addAndroid(pTarget));
@@ -77,7 +78,7 @@ public class SetAndroidCommand {
         AtomicBoolean ret = new AtomicBoolean(true);
         AtomicBoolean isAndroidAlready = new AtomicBoolean(false);
 
-        AndroidsSD androidData = getDataStorage(sourceStack).get(AndroidsSD::load, AndroidsSD.ID);
+        AndroidsSD androidData = CommandUtil.getAndroidSD(sourceStack);
         ret.set(ret.get() | androidData != null);
         if (androidData != null) {
             isAndroidAlready.set(androidData.removeAndroid(pTarget));
@@ -94,9 +95,5 @@ public class SetAndroidCommand {
         sourceStack.sendSuccess(response, true);
 
         return Command.SINGLE_SUCCESS;
-    }
-
-    private static DimensionDataStorage getDataStorage(CommandSourceStack sourceStack) {
-        return sourceStack.getLevel().getServer().overworld().getDataStorage();
     }
 }
