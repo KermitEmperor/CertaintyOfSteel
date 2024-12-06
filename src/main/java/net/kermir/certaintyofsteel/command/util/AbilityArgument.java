@@ -50,6 +50,11 @@ public class AbilityArgument implements ArgumentType<Ability> {
                             }
                         })).get();
 
+        /* TODO whatever is this
+            [23:10:01] [Render thread/INFO] [minecraft/ChatComponent]: [CHAT] Expected whitespace to end one argument, but found trailing data
+            [23:10:01] [Render thread/INFO] [minecraft/ChatComponent]: [CHAT] ...Dev grant certaintyofsteel:generic_ability<--[HERE]
+        */
+
         CertaintyOfSteel.LOGGER.debug(ability.getRegistryName().toString());
 
         return ability;
