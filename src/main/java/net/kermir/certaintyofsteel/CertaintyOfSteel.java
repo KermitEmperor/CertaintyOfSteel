@@ -1,22 +1,23 @@
 package net.kermir.certaintyofsteel;
 
 import com.mojang.logging.LogUtils;
-import net.kermir.certaintyofsteel.command.AndroidDataCommand;
-import net.kermir.certaintyofsteel.command.ForceSaveAndroidDataCommand;
-import net.kermir.certaintyofsteel.command.OpenAPScreenCommand;
-import net.kermir.certaintyofsteel.command.SetAndroidCommand;
+import net.kermir.certaintyofsteel.android.AbilityRegistry;
+import net.kermir.certaintyofsteel.android.abilities.util.Ability;
+import net.kermir.certaintyofsteel.command.*;
 import net.kermir.certaintyofsteel.keybinds.KeyBinding;
 import net.kermir.certaintyofsteel.networking.PacketChannel;
 import net.kermir.certaintyofsteel.networking.packets.RequestAPScreen;
 import net.kermir.certaintyofsteel.save.AndroidsSD;
 import net.kermir.certaintyofsteel.screen.MenuTypeRegistires;
 import net.minecraft.client.Minecraft;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -28,7 +29,13 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.IForgeRegistryEntry;
+import net.minecraftforge.registries.NewRegistryEvent;
+import net.minecraftforge.registries.RegistryBuilder;
 import org.slf4j.Logger;
+
+import java.awt.desktop.AboutEvent;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(CertaintyOfSteel.MOD_ID)
@@ -39,6 +46,7 @@ public class CertaintyOfSteel {
     // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
 
+
     public CertaintyOfSteel() {
         IEventBus ModEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
@@ -46,10 +54,12 @@ public class CertaintyOfSteel {
         ModEventBus.addListener(this::clientSetup);
         ModEventBus.addListener(this::enqueueIMC);
         ModEventBus.addListener(this::processIMC);
+        ModEventBus.addListener(this::onNewRegistry);
 
+        //AbilityRegistry.ABILITIES.register(ModEventBus);
 
         MenuTypeRegistires.register(ModEventBus);
-
+        AbilityRegistry.register(ModEventBus);
 
         IEventBus ForgeEventBus = MinecraftForge.EVENT_BUS;
 
@@ -61,6 +71,7 @@ public class CertaintyOfSteel {
     private void setup(final FMLCommonSetupEvent event) {
         // Some preinit code
         PacketChannel.register();
+
     }
 
     public void clientSetup(final FMLClientSetupEvent event) {
@@ -87,6 +98,7 @@ public class CertaintyOfSteel {
         SetAndroidCommand.register(event.getDispatcher());
         ForceSaveAndroidDataCommand.register(event.getDispatcher());
         OpenAPScreenCommand.register(event.getDispatcher());
+        AndroidAbilityCommand.register(event.getDispatcher());
     }
 
     public void onLevelLoad(final WorldEvent.Load event) {
@@ -96,6 +108,21 @@ public class CertaintyOfSteel {
                 server.overworld().getDataStorage().computeIfAbsent(AndroidsSD::load, AndroidsSD::create, AndroidsSD.ID);
             }
         }
+    }
+
+    public static IForgeRegistry<Ability> ABILITIES;
+
+    private void onNewRegistry(final NewRegistryEvent event) {
+        CertaintyOfSteel.LOGGER.debug("HMMMMMMM 621");
+
+        //public static final Registry<ISkill<?>> SKILLS = new RegistryBuilder<>(VampirismRegistries.Keys.SKILL).callback(new SkillCallbacks()).sync(true).create();
+        event.create(makeRegistry(new ResourceLocation(MOD_ID, "ability"), Ability.class, Integer.MAX_VALUE >> 5), r -> ABILITIES = r);
+
+        //AbilityRegistry.ABILITIES.makeRegistry(Ability.class, RegistryBuilder::new);
+    }
+
+    private static <T extends IForgeRegistryEntry<T>> RegistryBuilder<T> makeRegistry(ResourceLocation name, Class<T> type, int max) {
+        return new RegistryBuilder<T>().setName(name).setType(type).setMaxID(max);
     }
 
     @OnlyIn(Dist.CLIENT)

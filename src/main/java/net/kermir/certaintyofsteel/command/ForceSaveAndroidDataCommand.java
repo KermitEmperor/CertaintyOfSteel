@@ -11,8 +11,6 @@ import net.minecraft.world.level.storage.DimensionDataStorage;
 public class ForceSaveAndroidDataCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher){
-        CertaintyOfSteel.LOGGER.debug("also yes");
-
         dispatcher.register(Commands.literal("saveandroids")
                 .requires((source) -> source.hasPermission(2))
                 .executes((source) -> forceSave(source.getSource()))

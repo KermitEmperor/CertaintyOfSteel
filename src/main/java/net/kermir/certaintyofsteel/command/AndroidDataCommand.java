@@ -20,7 +20,6 @@ public class AndroidDataCommand {
 
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher){
-        CertaintyOfSteel.LOGGER.debug("also yes");
 
         dispatcher.register(Commands.literal("androiddata")
             .requires((source) -> source.hasPermission(2))
