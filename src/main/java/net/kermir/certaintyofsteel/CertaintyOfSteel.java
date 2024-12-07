@@ -56,8 +56,6 @@ public class CertaintyOfSteel {
         ModEventBus.addListener(this::processIMC);
         ModEventBus.addListener(this::onNewRegistry);
 
-        //AbilityRegistry.ABILITIES.register(ModEventBus);
-
         MenuTypeRegistires.register(ModEventBus);
         AbilityRegistry.register(ModEventBus);
 
