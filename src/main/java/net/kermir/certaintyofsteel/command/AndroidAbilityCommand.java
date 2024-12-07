@@ -16,28 +16,39 @@ public class AndroidAbilityCommand {
         dispatcher.register(Commands.literal("androidability")
                 .requires((source) -> source.hasPermission(2))
                 .then(Commands.argument("target", EntityArgument.player())
-
-                        .then(Commands.literal("grant")
-                                .then(Commands.argument("ability", AbilityArgument.ability())
+                        .then(Commands.argument("ability", AbilityArgument.ability())
+                                .then(Commands.literal("grant")
                                         .executes(commandContext ->
                                                 abilityGetOrRemove(
                                                         commandContext.getSource(),
                                                         EntityArgument.getPlayer(commandContext, "target"),
-                                                        AbilityArgument.getAbility(commandContext, "ability")
+                                                        AbilityArgument.getAbility(commandContext, "ability"),
+                                                        true
+                                                )
+                                        )
+                                )
+                                .then(Commands.literal("revoke")
+                                        .executes(commandContext ->
+                                                abilityGetOrRemove(
+                                                        commandContext.getSource(),
+                                                        EntityArgument.getPlayer(commandContext, "target"),
+                                                        AbilityArgument.getAbility(commandContext, "ability"),
+                                                        false
                                                 )
                                         )
                                 )
                         )
-                        //.then(Commands.literal("revoke"))
                 )
         );
     }
 
 
-    private static int abilityGetOrRemove(CommandSourceStack sourceStack, ServerPlayer player, Ability ability) {
+    private static int abilityGetOrRemove(CommandSourceStack sourceStack, ServerPlayer player, Ability ability, boolean add) {
         DimensionDataStorage dataStorage = CommandUtil.getDataStorage(sourceStack);
         CommandUtil.getAndroidSD(dataStorage).setDirty();
         dataStorage.save();
+
+        //TODO implement ability grant and revoke
 
 
         return Command.SINGLE_SUCCESS;

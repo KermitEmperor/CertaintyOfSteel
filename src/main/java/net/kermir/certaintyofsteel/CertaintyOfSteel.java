@@ -1,15 +1,21 @@
 package net.kermir.certaintyofsteel;
 
+import com.google.gson.JsonObject;
 import com.mojang.logging.LogUtils;
 import net.kermir.certaintyofsteel.android.AbilityRegistry;
 import net.kermir.certaintyofsteel.android.abilities.util.Ability;
 import net.kermir.certaintyofsteel.command.*;
+import net.kermir.certaintyofsteel.command.util.AbilityArgument;
 import net.kermir.certaintyofsteel.keybinds.KeyBinding;
 import net.kermir.certaintyofsteel.networking.PacketChannel;
 import net.kermir.certaintyofsteel.networking.packets.RequestAPScreen;
 import net.kermir.certaintyofsteel.save.AndroidsSD;
 import net.kermir.certaintyofsteel.screen.MenuTypeRegistires;
 import net.minecraft.client.Minecraft;
+import net.minecraft.commands.synchronization.ArgumentSerializer;
+import net.minecraft.commands.synchronization.ArgumentTypes;
+import net.minecraft.commands.synchronization.EmptyArgumentSerializer;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.api.distmarker.Dist;
@@ -19,6 +25,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -71,7 +78,7 @@ public class CertaintyOfSteel {
     private void setup(final FMLCommonSetupEvent event) {
         // Some preinit code
         PacketChannel.register();
-
+        ArgumentTypes.register(MOD_ID + ":ability", AbilityArgument.class, new EmptyArgumentSerializer<>(AbilityArgument::ability));
     }
 
     public void clientSetup(final FMLClientSetupEvent event) {

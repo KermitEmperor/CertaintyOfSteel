@@ -29,19 +29,17 @@ public class AbilityArgument implements ArgumentType<Ability> {
 
     @Override
     public Ability parse(StringReader stringReader) throws CommandSyntaxException {
-        String chatInput = stringReader.getString();
+        String chatInput = stringReader.readUnquotedString();
 
-        List<String> chatInputSplitted = List.of(chatInput.split("\\s+"));
-        String abilityID = chatInputSplitted.get(chatInputSplitted.indexOf("grant")+1);
+        String abilityID = chatInput + stringReader.read() + stringReader.readUnquotedString();
+
+        CertaintyOfSteel.LOGGER.debug("E {}", abilityID);
+
 
         if (!abilityID.contains(":")) return null;
 
         Ability ability = AbilityRegistry.ABILITIES.getEntries().stream()
-                        .filter(a -> {
-                            String huh = a.getId().toString();
-                            CertaintyOfSteel.LOGGER.debug(huh);
-                            return huh.equals(abilityID);
-                        })
+                        .filter(a -> a.getId().toString().equals(abilityID))
                         .findFirst()
                         .orElseThrow(() -> new CommandSyntaxException(CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherParseException(), new Message() {
                             @Override
@@ -50,17 +48,16 @@ public class AbilityArgument implements ArgumentType<Ability> {
                             }
                         })).get();
 
-        /* TODO whatever is this
-            [23:10:01] [Render thread/INFO] [minecraft/ChatComponent]: [CHAT] Expected whitespace to end one argument, but found trailing data
-            [23:10:01] [Render thread/INFO] [minecraft/ChatComponent]: [CHAT] ...Dev grant certaintyofsteel:generic_ability<--[HERE]
-        */
 
+        CertaintyOfSteel.LOGGER.debug("Found yer ability");
         CertaintyOfSteel.LOGGER.debug(ability.getRegistryName().toString());
+        CertaintyOfSteel.LOGGER.debug("{}", stringReader.getCursor());
 
         return ability;
     }
 
     public static Ability getAbility(CommandContext<CommandSourceStack> pContext, String pName) throws CommandSyntaxException {
+        CertaintyOfSteel.LOGGER.debug("E");
         Ability ability = pContext.getArgument(pName, Ability.class);
 
         CertaintyOfSteel.LOGGER.debug("E");
