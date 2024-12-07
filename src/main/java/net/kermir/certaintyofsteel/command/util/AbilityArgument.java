@@ -4,22 +4,18 @@ import com.mojang.brigadier.Message;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.exceptions.CommandExceptionType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.kermir.certaintyofsteel.CertaintyOfSteel;
-import net.kermir.certaintyofsteel.android.AbilityRegistry;
+import net.kermir.certaintyofsteel.registry.AbilityRegistry;
 import net.kermir.certaintyofsteel.android.abilities.util.Ability;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraftforge.registries.RegistryObject;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class AbilityArgument implements ArgumentType<Ability> {
 
@@ -33,11 +29,9 @@ public class AbilityArgument implements ArgumentType<Ability> {
 
         String abilityID = chatInput + stringReader.read() + stringReader.readUnquotedString();
 
-        CertaintyOfSteel.LOGGER.debug("E {}", abilityID);
-
-
         if (!abilityID.contains(":")) return null;
 
+        @SuppressWarnings("UnnecessaryLocalVariable")
         Ability ability = AbilityRegistry.ABILITIES.getEntries().stream()
                         .filter(a -> a.getId().toString().equals(abilityID))
                         .findFirst()
@@ -48,24 +42,13 @@ public class AbilityArgument implements ArgumentType<Ability> {
                             }
                         })).get();
 
-
-        CertaintyOfSteel.LOGGER.debug("Found yer ability");
-        CertaintyOfSteel.LOGGER.debug(ability.getRegistryName().toString());
-        CertaintyOfSteel.LOGGER.debug("{}", stringReader.getCursor());
-
         return ability;
     }
 
     public static Ability getAbility(CommandContext<CommandSourceStack> pContext, String pName) throws CommandSyntaxException {
-        CertaintyOfSteel.LOGGER.debug("E");
         Ability ability = pContext.getArgument(pName, Ability.class);
 
-        CertaintyOfSteel.LOGGER.debug("E");
-
-        if (ability != null)
-            CertaintyOfSteel.LOGGER.debug(ability.getRegistryName().toString());
-        else CertaintyOfSteel.LOGGER.debug("ability is null.. bruh");
-
+        if (ability == null) CertaintyOfSteel.LOGGER.debug("ability is null.. bruh");
 
         return ability;
     }

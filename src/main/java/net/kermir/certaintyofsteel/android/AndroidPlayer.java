@@ -12,8 +12,11 @@ import net.minecraftforge.common.util.INBTSerializable;
 import java.io.*;
 
 //Serializable interface is for the PacketObjectUtil
+//TODO well the whole AndroidPlayer class bruh
 public class AndroidPlayer implements Serializable, INBTSerializable<CompoundTag> {
     private String lol;
+
+    //TODO implement remembering what abilities are unlocked
 
     public void setLol(String lol) {
         this.lol = lol;
@@ -57,6 +60,7 @@ public class AndroidPlayer implements Serializable, INBTSerializable<CompoundTag
         CertaintyOfSteel.LOGGER.debug(this.lol);
     }
 
+    //TODO Codec for AndroidPlayer
     public static final Codec<AndroidPlayer> ANDROID_PLAYER_CODEC = RecordCodecBuilder.create(instance ->
         instance.group(
                 Codec.STRING.optionalFieldOf("lol", "notnulllol").forGetter(AndroidPlayer::getLol)

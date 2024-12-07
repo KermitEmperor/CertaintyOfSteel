@@ -3,6 +3,9 @@ package net.kermir.certaintyofsteel.screen.android;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.kermir.certaintyofsteel.android.AndroidPlayer;
+import net.kermir.certaintyofsteel.android.abilities.util.Ability;
+import net.kermir.certaintyofsteel.android.abilities.util.CustomAbilityWidget;
+import net.kermir.certaintyofsteel.registry.AbilityRegistry;
 import net.kermir.certaintyofsteel.screen.android.util.AndroidScreen;
 import net.kermir.certaintyofsteel.screen.android.util.AndroidScreens;
 import net.kermir.certaintyofsteel.screen.android.widgets.AbilityWidget;
@@ -24,7 +27,26 @@ public class AndroidAbilitiesScreen extends DraggableBackgroundScreen implements
     @Override
     protected void init() {
         this.addRenderableDraggableWidget(new Button(this.width/2+20, this.height/2-30, 20, 16, new TextComponent("Sex"), (button) -> { }));
-        this.addRenderableDraggableWidget(new AbilityWidget(this.width/2, this.height/2, new TextComponent("a"), this::addRenderableDraggableWidget, this::removeWidget));
+
+        //TODO datapack system for location of the ability, item requirement (optional), and required unlocks
+        //TODO lines that connect each ability according to above latter
+        for (Ability ability : AbilityRegistry.ABILITIES_REGISTRY.getValues()) {
+            AbilityWidget widget;
+            if (ability instanceof CustomAbilityWidget abilityWithWidget)
+                widget = abilityWithWidget.customWidget(this.width/2, this.height/2, ability, this::addRenderableDraggableWidget, this::removeWidget);
+            else
+                widget = new AbilityWidget(
+                        this.width/2,
+                        this.height/2,
+                        ability,
+                        this::addRenderableDraggableWidget,
+                        this::removeWidget
+                );
+
+            this.addRenderableDraggableWidget(widget);
+        }
+
+        //this.addRenderableDraggableWidget(new AbilityWidget(this.width/2, this.height/2, new TextComponent("a"), this::addRenderableDraggableWidget, this::removeWidget));
         super.init();
     }
 

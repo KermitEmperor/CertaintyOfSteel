@@ -1,8 +1,7 @@
 package net.kermir.certaintyofsteel;
 
-import com.google.gson.JsonObject;
 import com.mojang.logging.LogUtils;
-import net.kermir.certaintyofsteel.android.AbilityRegistry;
+import net.kermir.certaintyofsteel.registry.AbilityRegistry;
 import net.kermir.certaintyofsteel.android.abilities.util.Ability;
 import net.kermir.certaintyofsteel.command.*;
 import net.kermir.certaintyofsteel.command.util.AbilityArgument;
@@ -12,10 +11,8 @@ import net.kermir.certaintyofsteel.networking.packets.RequestAPScreen;
 import net.kermir.certaintyofsteel.save.AndroidsSD;
 import net.kermir.certaintyofsteel.screen.MenuTypeRegistires;
 import net.minecraft.client.Minecraft;
-import net.minecraft.commands.synchronization.ArgumentSerializer;
 import net.minecraft.commands.synchronization.ArgumentTypes;
 import net.minecraft.commands.synchronization.EmptyArgumentSerializer;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.api.distmarker.Dist;
@@ -23,9 +20,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -41,8 +36,6 @@ import net.minecraftforge.registries.IForgeRegistryEntry;
 import net.minecraftforge.registries.NewRegistryEvent;
 import net.minecraftforge.registries.RegistryBuilder;
 import org.slf4j.Logger;
-
-import java.awt.desktop.AboutEvent;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(CertaintyOfSteel.MOD_ID)
@@ -117,19 +110,9 @@ public class CertaintyOfSteel {
         }
     }
 
-    public static IForgeRegistry<Ability> ABILITIES;
-
     private void onNewRegistry(final NewRegistryEvent event) {
-        CertaintyOfSteel.LOGGER.debug("HMMMMMMM 621");
-
-        //public static final Registry<ISkill<?>> SKILLS = new RegistryBuilder<>(VampirismRegistries.Keys.SKILL).callback(new SkillCallbacks()).sync(true).create();
-        event.create(makeRegistry(new ResourceLocation(MOD_ID, "ability"), Ability.class, Integer.MAX_VALUE >> 5), r -> ABILITIES = r);
-
-        //AbilityRegistry.ABILITIES.makeRegistry(Ability.class, RegistryBuilder::new);
-    }
-
-    private static <T extends IForgeRegistryEntry<T>> RegistryBuilder<T> makeRegistry(ResourceLocation name, Class<T> type, int max) {
-        return new RegistryBuilder<T>().setName(name).setType(type).setMaxID(max);
+        CertaintyOfSteel.LOGGER.debug("Creating ability registry");
+        AbilityRegistry.registerRegistry(event);
     }
 
     @OnlyIn(Dist.CLIENT)
