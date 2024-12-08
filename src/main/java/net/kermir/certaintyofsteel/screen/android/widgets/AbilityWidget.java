@@ -5,16 +5,18 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.kermir.certaintyofsteel.CertaintyOfSteel;
 import net.kermir.certaintyofsteel.android.abilities.util.Ability;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.StringSplitter;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.locale.Language;
+import net.minecraft.network.chat.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.gui.GuiUtils;
 
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -26,15 +28,12 @@ public class AbilityWidget extends AbstractWidget {
     private Consumer<AbstractWidget> removeMethod;
     private Ability ability;
     private Component title;
-
-
-    public AbilityWidget(int pX, int pY, Component pMessage) {
-        super(pX, pY, 26, 26, pMessage);
-        this.mc = Minecraft.getInstance();
-    }
+    private Component description;
+    protected int extraInfoWidth = 0;
+    private List<String> splitDescription;
 
     public AbilityWidget(int pX, int pY, Function<AbstractWidget, GuiComponent> addMethod, Consumer<AbstractWidget> removeMethod) {
-        super(pX, pY, 26, 26, new TextComponent(""));
+        this(pX, pY, null, addMethod, removeMethod);
         this.mc = Minecraft.getInstance();
         this.addMethod = addMethod;
         this.removeMethod = removeMethod;
@@ -47,8 +46,9 @@ public class AbilityWidget extends AbstractWidget {
         this.removeMethod = removeMethod;
         this.ability = ability;
         this.title = this.ability.name();
+        this.description = this.ability.description();
+        this.splitDescription = List.of(this.description.getString().split(System.lineSeparator()));
     }
-
 
     @Override
     public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
@@ -58,17 +58,26 @@ public class AbilityWidget extends AbstractWidget {
 
         if (renderExtra) {
             int stringwidth = getStringWidth(this.title.getString());
-            blit(pPoseStack, this.x+this.width, this.y, 0, 52, stringwidth, 20);
+            int infoWidgetX = this.x+4;
+            int infoWidgetY = this.y+8;
+            int width = stringwidth+this.width;
+
+            for (String line : splitDescription) {
+                width = Math.max(getStringWidth(line)+this.width-21, width);
+            }
+            blit(pPoseStack, infoWidgetX, infoWidgetY, 0, 52, stringwidth, 20);
 
             //Padding is calculated by counting the pixels from VOffset until you are inline with the inner part of the box
             //VHeight is texture height + padding-1
             //VHeight is half of VOffset
-            render9Sprite(pPoseStack, this.x+this.width, this.y, stringwidth, 50, 7, 200, 26, 0,52);
+            render9Sprite(pPoseStack, infoWidgetX-6, infoWidgetY+6, width+6, 10+23*splitDescription.size(), 7, 200, 26, 0,52);
 
             //Blackdot at 80 for help
-            render9Sprite(pPoseStack, this.x+this.width-3, this.y-6, stringwidth+6, 23, 7, 200, 26, 0,80);
+            render9Sprite(pPoseStack, infoWidgetX-3-6, infoWidgetY-6,  width+7+6, 23, 7, 200, 26, 0,80);
 
-            drawString(pPoseStack, mc.font, this.title, this.x+this.width, this.y, 0xFFFFFF);
+            drawString(pPoseStack, mc.font, this.title, infoWidgetX+this.width, infoWidgetY, 0xFFFFFF);
+
+            drawString(pPoseStack, mc.font, this.description, infoWidgetX, infoWidgetY+20, 0xFFFFFF);
 
             RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
@@ -86,6 +95,7 @@ public class AbilityWidget extends AbstractWidget {
         //super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
     }
 
+    //Yoinked from AdvancementWidget class
     //AAAAAAAAAAAAAAAAAA
 
     protected void render9Sprite(PoseStack pPoseStack, int pX, int pY, int pWidth, int pHeight, int pPadding, int pUWidth, int pVHeight, int pUOffset, int pVOffset) {
