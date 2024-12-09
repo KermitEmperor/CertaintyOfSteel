@@ -1,16 +1,18 @@
 package net.kermir.certaintyofsteel.android.abilities.util;
 
+import net.kermir.certaintyofsteel.android.AndroidPlayer;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 import org.jetbrains.annotations.Nullable;
 
 
-public class Ability implements IForgeRegistryEntry<Ability> {
-
+public class Ability implements IForgeRegistryEntry<Ability>, INBTSerializable<CompoundTag> {
     protected int maxLevel = 0;
     protected int cooldown = 20; //TICKS
 
@@ -24,6 +26,21 @@ public class Ability implements IForgeRegistryEntry<Ability> {
 
     public final Component description() {
         return new TranslatableComponent(String.format("ability.%s.%s.description", getRegistryName().getNamespace(), getRegistryName().getPath()));
+    }
+
+
+    //Information to load and save
+
+    @Override
+    public CompoundTag serializeNBT() {
+        CompoundTag nbt = new CompoundTag();
+
+        return nbt;
+    }
+
+    @Override
+    public void deserializeNBT(CompoundTag nbt) {
+
     }
 
 
@@ -44,6 +61,10 @@ public class Ability implements IForgeRegistryEntry<Ability> {
         }
     }
 
+    public boolean onAblityAdded(AndroidPlayer androidPlayer) {
+        return true;
+    }
+
     //Ignore these
     private ResourceLocation registryName;
 
@@ -53,7 +74,6 @@ public class Ability implements IForgeRegistryEntry<Ability> {
         return this;
     }
 
-    @Nullable
     @Override
     public ResourceLocation getRegistryName() {
         return this.registryName;

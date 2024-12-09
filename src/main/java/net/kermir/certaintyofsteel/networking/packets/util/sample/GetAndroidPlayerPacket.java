@@ -35,7 +35,7 @@ public class GetAndroidPlayerPacket {
         UUID uuid = this.androidUUID;
 
         context.enqueueWork(() -> {
-            CertaintyOfSteel.LOGGER.debug("recAP lol val: {}",androidPlayer.getLol());
+            //CertaintyOfSteel.LOGGER.debug("recAP lol val: {}",androidPlayer.getLol());
         });
 
 
