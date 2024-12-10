@@ -65,17 +65,21 @@ public class AbilityWidget extends AbstractWidget {
             for (String line : splitDescription) {
                 width = Math.max(getStringWidth(line)+this.width-21, width);
             }
-            blit(pPoseStack, infoWidgetX, infoWidgetY, 0, 52, stringwidth, 20);
 
             //Padding is calculated by counting the pixels from VOffset until you are inline with the inner part of the box
             //VHeight is texture height + padding-1
-            //VHeight is half of VOffset
-            render9Sprite(pPoseStack, infoWidgetX-6, infoWidgetY+6, width+6, 10+23*splitDescription.size(), 7, 200, 26, 0,52);
+            //PvOffset is actual offset - PVHeight?
+            //WHAT?????
+            //Yeah ignore previous instructions, method variables come from trial and error,
+            //if anyone figures out how render9Sprite works (Which is taken from the AdvancementsTab) tell me please
+            //Desc
+            render9Sprite(pPoseStack, infoWidgetX-6, infoWidgetY+6, width+6, 10+23*splitDescription.size(), 7, 200, 26, 0,81);
 
             //Blackdot at 80 for help
-            render9Sprite(pPoseStack, infoWidgetX-3-6, infoWidgetY-6,  width+7+6, 23, 7, 200, 26, 0,80);
+            //Title
+            render9Sprite(pPoseStack, infoWidgetX-3-6, infoWidgetY-11,  width+7+6, 26, 7, 200, 26, 0, 106);
 
-            drawString(pPoseStack, mc.font, this.title, infoWidgetX+this.width, infoWidgetY, 0xFFFFFF);
+            drawString(pPoseStack, mc.font, this.title, infoWidgetX+this.width, infoWidgetY+1, 0xFFFFFF);
 
             drawString(pPoseStack, mc.font, this.description, infoWidgetX, infoWidgetY+20, 0xFFFFFF);
 

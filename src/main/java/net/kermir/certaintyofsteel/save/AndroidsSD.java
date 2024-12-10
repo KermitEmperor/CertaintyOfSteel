@@ -83,7 +83,7 @@ public class AndroidsSD extends SavedData {
 
     @Override
     public @NotNull CompoundTag save(@NotNull CompoundTag nbt) {
-        CertaintyOfSteel.LOGGER.info("Saving {} androids to disk", androids.keySet().size());
+        CertaintyOfSteel.LOGGER.info("Saving {} android(s) to disk", androids.keySet().size());
 
         CompoundTag androidlist = new CompoundTag();
         for (UUID uuid : androids.keySet()) {

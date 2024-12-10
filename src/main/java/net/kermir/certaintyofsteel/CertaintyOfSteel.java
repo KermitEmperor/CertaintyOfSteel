@@ -1,8 +1,8 @@
 package net.kermir.certaintyofsteel;
 
 import com.mojang.logging.LogUtils;
+import net.kermir.certaintyofsteel.android.abilities.data.AbilitiesJsonListener;
 import net.kermir.certaintyofsteel.registry.AbilityRegistry;
-import net.kermir.certaintyofsteel.android.abilities.util.Ability;
 import net.kermir.certaintyofsteel.command.*;
 import net.kermir.certaintyofsteel.command.util.AbilityArgument;
 import net.kermir.certaintyofsteel.keybinds.KeyBinding;
@@ -13,12 +13,12 @@ import net.kermir.certaintyofsteel.screen.MenuTypeRegistires;
 import net.minecraft.client.Minecraft;
 import net.minecraft.commands.synchronization.ArgumentTypes;
 import net.minecraft.commands.synchronization.EmptyArgumentSerializer;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.world.WorldEvent;
@@ -31,10 +31,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.IForgeRegistryEntry;
 import net.minecraftforge.registries.NewRegistryEvent;
-import net.minecraftforge.registries.RegistryBuilder;
 import org.slf4j.Logger;
 
 // The value here should match an entry in the META-INF/mods.toml file
@@ -111,6 +108,11 @@ public class CertaintyOfSteel {
     private void onNewRegistry(final NewRegistryEvent event) {
         CertaintyOfSteel.LOGGER.debug("Creating ability registry");
         AbilityRegistry.registerRegistry(event);
+    }
+
+    @SubscribeEvent
+    public void jsonReading(AddReloadListenerEvent event) {
+        event.addListener(AbilitiesJsonListener.instance);
     }
 
     @OnlyIn(Dist.CLIENT)
