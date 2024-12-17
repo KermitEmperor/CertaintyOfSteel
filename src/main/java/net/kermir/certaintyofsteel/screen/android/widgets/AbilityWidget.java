@@ -9,6 +9,9 @@ import net.minecraft.client.StringSplitter;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Widget;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.locale.Language;
@@ -16,6 +19,7 @@ import net.minecraft.network.chat.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.gui.GuiUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -29,8 +33,9 @@ public class AbilityWidget extends AbstractWidget {
     private Ability ability;
     private Component title;
     private Component description;
-    protected int extraInfoWidth = 0;
     private List<String> splitDescription;
+    protected int settingsHeight = 0;
+    private List<AbstractWidget> widgets = new ArrayList<>();
 
     public AbilityWidget(int pX, int pY, Function<AbstractWidget, GuiComponent> addMethod, Consumer<AbstractWidget> removeMethod) {
         this(pX, pY, null, addMethod, removeMethod);
@@ -47,7 +52,7 @@ public class AbilityWidget extends AbstractWidget {
         this.ability = ability;
         this.title = this.ability.name();
         this.description = this.ability.description();
-        this.splitDescription = List.of(this.description.getString().split(System.lineSeparator()));
+        this.splitDescription = List.of(this.description.getString().split("\\R"));
     }
 
     @Override
@@ -57,35 +62,7 @@ public class AbilityWidget extends AbstractWidget {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
 
         if (renderExtra) {
-            int stringwidth = getStringWidth(this.title.getString());
-            int infoWidgetX = this.x+4;
-            int infoWidgetY = this.y+8;
-            int width = stringwidth+this.width;
-
-            for (String line : splitDescription) {
-                width = Math.max(getStringWidth(line)+this.width-21, width);
-            }
-
-            //Padding is calculated by counting the pixels from VOffset until you are inline with the inner part of the box
-            //VHeight is texture height + padding-1
-            //PvOffset is actual offset - PVHeight?
-            //WHAT?????
-            //Yeah ignore previous instructions, method variables come from trial and error,
-            //if anyone figures out how render9Sprite works (Which is taken from the AdvancementsTab) tell me please
-            //Desc
-            render9Sprite(pPoseStack, infoWidgetX-6, infoWidgetY+6, width+6, 10+23*splitDescription.size(), 7, 200, 26, 0,81);
-
-            //Blackdot at 80 for help
-            //Title
-            render9Sprite(pPoseStack, infoWidgetX-3-6, infoWidgetY-11,  width+7+6, 26, 7, 200, 26, 0, 106);
-
-            drawString(pPoseStack, mc.font, this.title, infoWidgetX+this.width, infoWidgetY+1, 0xFFFFFF);
-
-            drawString(pPoseStack, mc.font, this.description, infoWidgetX, infoWidgetY+20, 0xFFFFFF);
-
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
-            RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
+            this.renderDropdown(pPoseStack, pMouseX, pMouseY, pPartialTick);
         }
 
 
@@ -99,8 +76,116 @@ public class AbilityWidget extends AbstractWidget {
         //super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
     }
 
+    public void renderDropdown(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+        int infoWidgetX = this.x+4;
+        int infoWidgetY = this.y+8;
+
+        //Background
+        //15 is for the learn/upgrade, enable/disable
+        renderDropdownBg(pPoseStack, infoWidgetX, infoWidgetY, this.width , 27+20+mc.font.lineHeight*splitDescription.size(), pMouseX, pMouseY, pPartialTick);
+        //Settings
+        renderSettings(pPoseStack, infoWidgetX, infoWidgetY, pMouseX, pMouseY, pPartialTick);
+
+        //Title
+        drawString(pPoseStack, mc.font, this.title, infoWidgetX+this.width, infoWidgetY+1, 0xFFFFFF);
+
+        //Desc
+        int i = 0;
+        for (String string : this.splitDescription) {
+            i += mc.font.lineHeight;
+            drawString(pPoseStack, mc.font, string, infoWidgetX, infoWidgetY+10+i, 0xFFFFFF);
+        }
+
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
+    }
+
+    public void renderDropdownBg(PoseStack pPoseStack, int x, int y, int pWidth ,int height ,int pMouseX, int pMouseY, float pPartialTick) {
+        int stringwidth = getStringWidth(this.title.getString());
+        int width = pWidth;
+
+
+        for (String line : splitDescription) {
+            width = Math.max(getStringWidth(line)-21, width);
+        }
+
+
+        width = Math.max(Math.max(width, stringwidth+3), 84);
+
+        //Padding is calculated by counting the pixels from VOffset until you are inline with the inner part of the box
+        //VHeight is texture height + padding-1
+        //PvOffset is actual offset - PVHeight?
+        //WHAT?????
+        //Yeah ignore previous instructions, method variables come from trial and error,
+        //if anyone figures out how render9Sprite works (Which is taken from the AdvancementsTab) tell me please
+        //Desc
+        render9Sprite(pPoseStack, x-6, y+6, this.width+width+6, height+settingsHeight, 7, 200, 26, 0,81);
+
+        //Blackdot at 80 for help
+        //Title
+        render9Sprite(pPoseStack, x-9, y-11,  this.width+width+13, 26, 7, 200, 26, 0, 106);
+    }
+
+    public void renderSettings(PoseStack pPoseStack, int x, int y,int pMouseX, int pMouseY, float pPartialTick) {
+
+    }
+
+    protected void addButtons(int x, int y) {
+        //TODO custom button style
+        //TODO functionality to unlock and disable/enable ability
+        //TODO change text and logo (learn -> upgrade, disable <-> enable)
+        addWidget(new Button(x, y, 50, 20, new TranslatableComponent("ability.dropdown.learn"), (pButton) -> {
+
+        }));
+
+        addWidget(new Button(x+54, y, 50, 20, new TranslatableComponent("ability.dropdown.disable"), (pButton) -> {
+
+        }));
+    }
+
+    public void addSettingsWidgets(int x, int y) {
+        //example
+        addWidget(new Button(x, y, 20, 20, new TextComponent(":)"), (pButton) -> {}));
+    }
+
     //Yoinked from AdvancementWidget class
     //AAAAAAAAAAAAAAAAAA
+    private int getStringWidth(String string) {
+        return mc.font.width(string);
+    }
+
+    @Override
+    public void updateNarration(NarrationElementOutput pNarrationElementOutput) {
+        //No
+    }
+
+    @Override
+    public void onClick(double pMouseX, double pMouseY) {
+        renderExtra = !renderExtra;
+        if (renderExtra) {
+            addSettingsWidgets(this.x+4, this.height + 8 + this.y + this.splitDescription.size()*mc.font.lineHeight);
+            addButtons(this.x+4, this.settingsHeight + this.height + 8 + this.y + this.splitDescription.size()*mc.font.lineHeight);
+            for (AbstractWidget widget : widgets) {
+                addMethod.apply(widget);
+            }
+        } else {
+            for (AbstractWidget widget : widgets.toArray(new AbstractWidget[0])) {
+                removeMethod.accept(widget);
+                widgets.remove(widget);
+            }
+        }
+        super.onClick(pMouseX, pMouseY);
+    }
+
+    protected AbstractWidget addWidget(AbstractWidget pWidget) {
+        widgets.add(pWidget);
+        return pWidget;
+    }
+
+    protected void removeWidget(AbstractWidget pWidget) {
+        widgets.remove(pWidget);
+    }
 
     protected void render9Sprite(PoseStack pPoseStack, int pX, int pY, int pWidth, int pHeight, int pPadding, int pUWidth, int pVHeight, int pUOffset, int pVOffset) {
         this.blit(pPoseStack, pX, pY, pUOffset, pVOffset, pPadding, pPadding);
@@ -126,20 +211,5 @@ public class AbilityWidget extends AbstractWidget {
             }
         }
 
-    }
-
-    private int getStringWidth(String string) {
-        return mc.font.width(string);
-    }
-
-    @Override
-    public void updateNarration(NarrationElementOutput pNarrationElementOutput) {
-        //No
-    }
-
-    @Override
-    public void onClick(double pMouseX, double pMouseY) {
-        renderExtra = !renderExtra;
-        super.onClick(pMouseX, pMouseY);
     }
 }

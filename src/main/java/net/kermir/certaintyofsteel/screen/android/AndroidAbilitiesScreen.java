@@ -1,8 +1,11 @@
 package net.kermir.certaintyofsteel.screen.android;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.kermir.certaintyofsteel.android.AndroidPlayer;
+import net.kermir.certaintyofsteel.android.abilities.data.AbilitiesJsonListener;
 import net.kermir.certaintyofsteel.android.abilities.util.Ability;
 import net.kermir.certaintyofsteel.android.abilities.util.CustomAbilityWidget;
 import net.kermir.certaintyofsteel.registry.AbilityRegistry;
@@ -31,13 +34,23 @@ public class AndroidAbilitiesScreen extends DraggableBackgroundScreen implements
         //TODO datapack system for location of the ability, item requirement (optional), and required unlocks
         //TODO lines that connect each ability according to above latter
         for (Ability ability : AbilityRegistry.ABILITIES_REGISTRY.getValues()) {
+            JsonObject json = AbilitiesJsonListener.EXTRA_ABILITY_DATA.get(ability.getRegistryName().toString()).getAsJsonObject();
+
+            int x = this.width / 2;
+            int y = this.height / 2;
+
+            if (json != null) {
+                x += json.get("x").getAsInt();
+                y += json.get("y").getAsInt();
+            }
+
             AbilityWidget widget;
             if (ability instanceof CustomAbilityWidget abilityWithWidget)
-                widget = abilityWithWidget.customWidget(this.width/2, this.height/2, ability, this::addRenderableDraggableWidget, this::removeWidget);
+                widget = abilityWithWidget.customWidget(x, y, ability, this::addRenderableDraggableWidget, this::removeWidget);
             else
                 widget = new AbilityWidget(
-                        this.width/2,
-                        this.height/2,
+                        x,
+                        y,
                         ability,
                         this::addRenderableDraggableWidget,
                         this::removeWidget
