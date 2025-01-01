@@ -1,24 +1,30 @@
 package net.kermir.certaintyofsteel.screen.android;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.kermir.certaintyofsteel.CertaintyOfSteel;
 import net.kermir.certaintyofsteel.android.AndroidPlayer;
 import net.kermir.certaintyofsteel.android.abilities.data.AbilitiesJsonListener;
 import net.kermir.certaintyofsteel.android.abilities.util.Ability;
 import net.kermir.certaintyofsteel.android.abilities.util.CustomAbilityWidget;
 import net.kermir.certaintyofsteel.registry.AbilityRegistry;
-import net.kermir.certaintyofsteel.screen.android.util.AndroidScreen;
-import net.kermir.certaintyofsteel.screen.android.util.AndroidScreens;
 import net.kermir.certaintyofsteel.screen.android.widgets.AbilityWidget;
-import net.kermir.certaintyofsteel.screen.util.DraggableBackgroundScreen;
+import net.kermir.certaintyofsteel.screen.android.util.DraggableAndroidBGScreen;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.phys.Vec2;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class AndroidAbilitiesScreen extends DraggableBackgroundScreen implements AndroidScreen {
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class AndroidAbilitiesScreen extends DraggableAndroidBGScreen {
     private AndroidPlayer android;
 
 
@@ -76,18 +82,48 @@ public class AndroidAbilitiesScreen extends DraggableBackgroundScreen implements
         super.render(pPoseStack, pMouseX, pMouseY, pPartialTicks);
     }
 
-    @Override
-    public void onClose() {
-        super.onClose();
-    }
 
     @Override
-    public boolean isPauseScreen() {
+    public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
+        List<Rectangle> descsBounds = new ArrayList<>();
+        for(GuiEventListener guiEventListener : this.children()) {
+            if (guiEventListener instanceof AbilityWidget abilityWidget) {
+                if (abilityWidget.isFocused()) {
+                    Rectangle rectangle = abilityWidget.getDescriptionBounds();
+                    //descsBounds.add(rectangle);
+
+                    CertaintyOfSteel.LOGGER.info("X {} Y {} Width {} Height {}", rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+                }
+            }
+        }
+
+        for(GuiEventListener guieventlistener : this.children()) {
+
+            //TODO however what is inside the desc should still be interactable bruh
+
+            boolean ret = true;
+            for (Rectangle rectangle : descsBounds) {
+                ret = !rectangle.contains(pMouseX, pMouseY);
+                if (!ret) break;
+            }
+
+            if (ret) {
+                if (guieventlistener.mouseClicked(pMouseX, pMouseY, pButton)) {
+                    this.setFocused(guieventlistener);
+                    if (pButton == 0) {
+                        this.setDragging(true);
+                    }
+
+                    return true;
+                }
+            }
+        }
+
         return false;
     }
 
     @Override
-    public AndroidScreens getScreenType() {
-        return AndroidScreens.ABILITIES;
+    public void onClose() {
+        super.onClose();
     }
 }

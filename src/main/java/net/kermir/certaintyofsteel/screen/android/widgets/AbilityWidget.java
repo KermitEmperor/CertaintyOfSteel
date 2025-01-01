@@ -5,20 +5,17 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.kermir.certaintyofsteel.CertaintyOfSteel;
 import net.kermir.certaintyofsteel.android.abilities.util.Ability;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.StringSplitter;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Widget;
-import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.locale.Language;
 import net.minecraft.network.chat.*;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.gui.GuiUtils;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -26,7 +23,6 @@ import java.util.function.Function;
 
 public class AbilityWidget extends AbstractWidget {
     public static final ResourceLocation WIDGETS_LOCATION = new ResourceLocation(CertaintyOfSteel.MOD_ID,"textures/gui/android_panel_widgets.png");
-    public boolean renderExtra = false;
     private Minecraft mc;
     private Function<AbstractWidget, GuiComponent> addMethod;
     private Consumer<AbstractWidget> removeMethod;
@@ -36,6 +32,8 @@ public class AbilityWidget extends AbstractWidget {
     private List<String> splitDescription;
     protected int settingsHeight = 0;
     private List<AbstractWidget> widgets = new ArrayList<>();
+    protected Rectangle descriptionBounds = new Rectangle();
+    protected int DescTitleBlitOffset = 100;
 
     public AbilityWidget(int pX, int pY, Function<AbstractWidget, GuiComponent> addMethod, Consumer<AbstractWidget> removeMethod) {
         this(pX, pY, null, addMethod, removeMethod);
@@ -53,6 +51,7 @@ public class AbilityWidget extends AbstractWidget {
         this.title = this.ability.name();
         this.description = this.ability.description();
         this.splitDescription = List.of(this.description.getString().split("\\R"));
+        this.setBlitOffset(1);
     }
 
     @Override
@@ -61,7 +60,7 @@ public class AbilityWidget extends AbstractWidget {
         RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
 
-        if (renderExtra) {
+        if (this.isFocused()) {
             this.renderDropdown(pPoseStack, pMouseX, pMouseY, pPartialTick);
         }
 
@@ -101,7 +100,11 @@ public class AbilityWidget extends AbstractWidget {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
     }
 
-    public void renderDropdownBg(PoseStack pPoseStack, int x, int y, int pWidth ,int height ,int pMouseX, int pMouseY, float pPartialTick) {
+    public Rectangle getDescriptionBounds() {
+        return descriptionBounds;
+    }
+
+    public void renderDropdownBg(PoseStack pPoseStack, int x, int y, int pWidth , int height , int pMouseX, int pMouseY, float pPartialTick) {
         int stringwidth = getStringWidth(this.title.getString());
         int width = pWidth;
 
@@ -120,11 +123,17 @@ public class AbilityWidget extends AbstractWidget {
         //Yeah ignore previous instructions, method variables come from trial and error,
         //if anyone figures out how render9Sprite works (Which is taken from the AdvancementsTab) tell me please
         //Desc
-        render9Sprite(pPoseStack, x-6, y+6, this.width+width+6, height+settingsHeight, 7, 200, 26, 0,81);
+        int descWidth = this.width+width+6;
+        int descHeight = height+settingsHeight;
+        render9Sprite(pPoseStack, x-6, y+6, descWidth, descHeight, 7, 200, 26, 0,81);
 
         //Blackdot at 80 for help
         //Title
-        render9Sprite(pPoseStack, x-9, y-11,  this.width+width+13, 26, 7, 200, 26, 0, 106);
+        int titleWidth = this.width+width+13;
+        int titleHeight = 26;
+        render9Sprite(pPoseStack, x-9, y-11,  titleWidth, titleHeight, 7, 200, 26, 0, 106);
+
+        this.descriptionBounds.setBounds(x-9, y-7, titleWidth, descHeight+11);
     }
 
     public void renderSettings(PoseStack pPoseStack, int x, int y,int pMouseX, int pMouseY, float pPartialTick) {
@@ -162,19 +171,23 @@ public class AbilityWidget extends AbstractWidget {
 
     @Override
     public void onClick(double pMouseX, double pMouseY) {
-        renderExtra = !renderExtra;
-        if (renderExtra) {
+        this.changeFocus(this.isFocused());
+        CertaintyOfSteel.LOGGER.info("{}",this.isFocused());
+        if (this.isFocused()) {
+            this.setBlitOffset(2);
             addSettingsWidgets(this.x+4, this.height + 8 + this.y + this.splitDescription.size()*mc.font.lineHeight);
             addButtons(this.x+4, this.settingsHeight + this.height + 8 + this.y + this.splitDescription.size()*mc.font.lineHeight);
             for (AbstractWidget widget : widgets) {
                 addMethod.apply(widget);
             }
         } else {
+            this.setBlitOffset(1);
             for (AbstractWidget widget : widgets.toArray(new AbstractWidget[0])) {
                 removeMethod.accept(widget);
                 widgets.remove(widget);
             }
         }
+        CertaintyOfSteel.LOGGER.info("blit {}",this.getBlitOffset());
         super.onClick(pMouseX, pMouseY);
     }
 

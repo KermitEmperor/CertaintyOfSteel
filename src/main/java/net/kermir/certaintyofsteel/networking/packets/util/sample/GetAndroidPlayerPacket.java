@@ -34,12 +34,12 @@ public class GetAndroidPlayerPacket {
         androidPlayer.deserializeNBT(this.androidTag);
         UUID uuid = this.androidUUID;
 
-        context.enqueueWork(() -> {
-            //CertaintyOfSteel.LOGGER.debug("recAP lol val: {}",androidPlayer.getLol());
-        });
-
-
+        context.enqueueWork(() -> this.action(context, androidPlayer, uuid));
 
         return true;
+    }
+
+    public void action(NetworkEvent.Context context, AndroidPlayer androidPlayer, UUID androidUUID) {
+
     }
 }

@@ -17,7 +17,6 @@ import java.util.*;
 //TODO well the whole AndroidPlayer class bruh
 public class AndroidPlayer implements Serializable, INBTSerializable<CompoundTag> {
     private HashMap<String, CompoundTag> unlockedAbilities = new HashMap<>();
-    private int dummyNum;
 
 
     //TODO implement remembering what abilities are unlocked
@@ -28,10 +27,6 @@ public class AndroidPlayer implements Serializable, INBTSerializable<CompoundTag
 
     public AndroidPlayer(Map<String, CompoundTag> unlockedAbilities) {
         this.unlockedAbilities = new HashMap<>(unlockedAbilities);
-    }
-
-    public int getDummyNum() {
-        return dummyNum;
     }
 
     public void addUnlockedAbility(Ability ability) {
@@ -64,16 +59,14 @@ public class AndroidPlayer implements Serializable, INBTSerializable<CompoundTag
             nbt.put("AndroidInfo", tag);
         }));
 
-
-
         return nbt;
     }
 
     @Override
     public void deserializeNBT(CompoundTag nbt) {
         CertaintyOfSteel.LOGGER.debug("Deserializing Android player");
-        DataResult<AndroidPlayer> result = ANDROID_PLAYER_CODEC.parse(NbtOps.INSTANCE, nbt.get("AndroidInfo"));
-        result.result().ifPresent((androidPlayer -> {
+        DataResult<AndroidPlayer> dataResult = ANDROID_PLAYER_CODEC.parse(NbtOps.INSTANCE, nbt.get("AndroidInfo"));
+        dataResult.result().ifPresent((androidPlayer -> {
             this.unlockedAbilities = androidPlayer.unlockedAbilities;
         }));
     }

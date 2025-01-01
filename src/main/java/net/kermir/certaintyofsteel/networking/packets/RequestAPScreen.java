@@ -11,7 +11,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
 
 import java.util.UUID;
-import java.util.function.Supplier;
 
 public class RequestAPScreen extends RequestAndroidPlayerPacket {
     public RequestAPScreen(FriendlyByteBuf buf) {
@@ -23,40 +22,32 @@ public class RequestAPScreen extends RequestAndroidPlayerPacket {
     }
 
     @Override
-    public boolean handle(Supplier<NetworkEvent.Context> contextSupplier) {
-        NetworkEvent.Context context = contextSupplier.get();
+    public void action(NetworkEvent.Context context, UUID androidUUID) {
+        if (context.getSender() == null) {
+            CertaintyOfSteel.LOGGER.warn("RequestAPScreen sender was null!");
+            return;
+        }
 
-        //WE are on serverside here
-        context.enqueueWork(() -> {
+        ServerPlayer sender = context.getSender();
 
-            if (context.getSender() == null) {
-                CertaintyOfSteel.LOGGER.warn("RequestAPScreen sender was null!");
-                return;
-            }
+        if (sender.getServer() == null) {
+            CertaintyOfSteel.LOGGER.warn("RequestAPScreen server was null!");
+            return;
+        }
 
-            ServerPlayer sender = context.getSender();
+        MinecraftServer server = sender.getServer();
 
-            if (sender.getServer() == null) {
-                CertaintyOfSteel.LOGGER.warn("RequestAPScreen server was null!");
-                return;
-            }
+        AndroidsSD androidsSD = server.overworld().getDataStorage().get(AndroidsSD::load, AndroidsSD.ID);
+        if (androidsSD == null) {
+            CertaintyOfSteel.LOGGER.warn("RequestAPScreen AndroidsSD was null!");
+            return;
+        }
 
-            MinecraftServer server = sender.getServer();
-
-            AndroidsSD androidsSD = server.overworld().getDataStorage().get(AndroidsSD::load, AndroidsSD.ID);
-            if (androidsSD == null) {
-                CertaintyOfSteel.LOGGER.warn("RequestAPScreen AndroidsSD was null!");
-                return;
-            }
-
-            AndroidPlayer androidPlayer = androidsSD.getAndroid(this.uuid);
-            if (androidPlayer == null) {
-                CertaintyOfSteel.LOGGER.warn("{} ({}) isn't recognized as an android!", server.getPlayerList().getPlayer(uuid).getDisplayName().getString(), uuid);
-                return;
-            }
-            PacketChannel.sendToClient(new OpenAPScreen(this.uuid, androidPlayer), context.getSender());
-        });
-
-        return true;
+        AndroidPlayer androidPlayer = androidsSD.getAndroid(this.uuid);
+        if (androidPlayer == null) {
+            CertaintyOfSteel.LOGGER.warn("{} ({}) isn't recognized as an android!", server.getPlayerList().getPlayer(uuid).getDisplayName().getString(), uuid);
+            return;
+        }
+        PacketChannel.sendToClient(new OpenAPScreen(this.uuid, androidPlayer), context.getSender());
     }
 }

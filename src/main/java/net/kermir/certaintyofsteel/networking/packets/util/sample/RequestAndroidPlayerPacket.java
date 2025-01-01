@@ -26,12 +26,12 @@ public class RequestAndroidPlayerPacket {
         NetworkEvent.Context context = contextSupplier.get();
         UUID androidUUID = this.uuid;
 
-        context.enqueueWork(() -> {
-            CertaintyOfSteel.LOGGER.debug("recAP lol val: {}");
-        });
-
-
+        context.enqueueWork(() -> this.action(context, androidUUID));
 
         return true;
+    }
+
+    public void action(NetworkEvent.Context context, UUID androidUUID) {
+        CertaintyOfSteel.LOGGER.debug("recAP lol val: {}");
     }
 }

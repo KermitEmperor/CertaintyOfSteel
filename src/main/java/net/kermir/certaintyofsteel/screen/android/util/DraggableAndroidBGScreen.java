@@ -1,18 +1,16 @@
-package net.kermir.certaintyofsteel.screen.util;
+package net.kermir.certaintyofsteel.screen.android.util;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.Mth;
 
 import java.util.HashSet;
 
-public class DraggableBackgroundScreen extends Screen {
+public class DraggableAndroidBGScreen extends AndroidScreen {
     protected int xOffset;
     protected int yOffset;
     private double lastMouseX = 0;
@@ -20,7 +18,7 @@ public class DraggableBackgroundScreen extends Screen {
     private boolean isDragging = false;
     private final HashSet<AbstractWidget> draggableWidgets = new HashSet<>();
 
-    protected DraggableBackgroundScreen(Component pTitle) {
+    protected DraggableAndroidBGScreen(Component pTitle) {
         super(pTitle);
     }
 

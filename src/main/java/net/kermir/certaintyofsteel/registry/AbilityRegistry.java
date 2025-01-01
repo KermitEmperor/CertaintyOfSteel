@@ -30,6 +30,9 @@ public class AbilityRegistry {
     public static final RegistryObject<Ability> GENERIC_ABILITY = ABILITIES.register("generic_ability",
             () -> new Ability());
 
+    public static final RegistryObject<Ability> SECOND_GENERIC_ABILITY = ABILITIES.register("generic_ability_two",
+            () -> new Ability());
+
     public static void register(IEventBus bus) {
         ABILITIES.register(bus);
     }

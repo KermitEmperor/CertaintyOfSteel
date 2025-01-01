@@ -5,7 +5,6 @@ import net.kermir.certaintyofsteel.networking.packets.OpenAPScreen;
 import net.kermir.certaintyofsteel.networking.packets.RequestAPScreen;
 import net.kermir.certaintyofsteel.networking.packets.util.sample.GetAndroidPlayerPacket;
 import net.kermir.certaintyofsteel.networking.packets.util.sample.RequestAndroidPlayerPacket;
-import net.kermir.certaintyofsteel.networking.packets.util.sample.SetAndroidPlayerPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkDirection;
@@ -41,12 +40,6 @@ public class PacketChannel {
                 .encoder(RequestAndroidPlayerPacket::encode)
                 .decoder(RequestAndroidPlayerPacket::new)
                 .consumer(RequestAndroidPlayerPacket::handle)
-                .add();
-
-        net.messageBuilder(SetAndroidPlayerPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
-                .encoder(SetAndroidPlayerPacket::encode)
-                .decoder(SetAndroidPlayerPacket::new)
-                .consumer(SetAndroidPlayerPacket::handle)
                 .add();
 
         net.messageBuilder(RequestAPScreen.class, id(), NetworkDirection.PLAY_TO_SERVER)
