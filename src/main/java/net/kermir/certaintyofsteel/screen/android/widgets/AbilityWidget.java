@@ -4,6 +4,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.kermir.certaintyofsteel.CertaintyOfSteel;
 import net.kermir.certaintyofsteel.android.abilities.util.Ability;
+import net.kermir.certaintyofsteel.screen.widgets.ExtendedButton;
+import net.kermir.certaintyofsteel.screen.widgets.TextUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -14,6 +16,8 @@ import net.minecraft.network.chat.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -33,7 +37,6 @@ public class AbilityWidget extends AbstractWidget {
     protected int settingsHeight = 0;
     private List<AbstractWidget> widgets = new ArrayList<>();
     protected Rectangle descriptionBounds = new Rectangle();
-    protected int DescTitleBlitOffset = 100;
 
     public AbilityWidget(int pX, int pY, Function<AbstractWidget, GuiComponent> addMethod, Consumer<AbstractWidget> removeMethod) {
         this(pX, pY, null, addMethod, removeMethod);
@@ -51,7 +54,7 @@ public class AbilityWidget extends AbstractWidget {
         this.title = this.ability.name();
         this.description = this.ability.description();
         this.splitDescription = List.of(this.description.getString().split("\\R"));
-        this.setBlitOffset(1);
+        this.setBlitOffset(0);
     }
 
     @Override
@@ -59,6 +62,7 @@ public class AbilityWidget extends AbstractWidget {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
+        RenderSystem.enableDepthTest();
 
         if (this.isFocused()) {
             this.renderDropdown(pPoseStack, pMouseX, pMouseY, pPartialTick);
@@ -67,15 +71,18 @@ public class AbilityWidget extends AbstractWidget {
 
         if (this.visible) {
             if (!isMouseOver(pMouseX, pMouseY))
-                blit(pPoseStack, this.x, this.y, 0, 26, 26, 26);
-            else
-                blit(pPoseStack, this.x, this.y, 0, 0, 26, 26);
+                blit(pPoseStack, this.x, this.y,this.getBlitOffset(), 0, 26, 26, 26,256,256);
+            else {
+                blit(pPoseStack, this.x, this.y,this.getBlitOffset(), 0, 0, 26, 26,256,256);
+            }
         }
 
         //super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
+        RenderSystem.disableDepthTest();
     }
 
     public void renderDropdown(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+        this.setBlitOffset(3);
         int infoWidgetX = this.x+4;
         int infoWidgetY = this.y+8;
 
@@ -86,13 +93,13 @@ public class AbilityWidget extends AbstractWidget {
         renderSettings(pPoseStack, infoWidgetX, infoWidgetY, pMouseX, pMouseY, pPartialTick);
 
         //Title
-        drawString(pPoseStack, mc.font, this.title, infoWidgetX+this.width, infoWidgetY+1, 0xFFFFFF);
+        renderString(pPoseStack, this.title.getString(), infoWidgetX+this.width, infoWidgetY+1, 0xFFFFFF);
 
         //Desc
         int i = 0;
         for (String string : this.splitDescription) {
             i += mc.font.lineHeight;
-            drawString(pPoseStack, mc.font, string, infoWidgetX, infoWidgetY+10+i, 0xFFFFFF);
+            renderString(pPoseStack, string, infoWidgetX, infoWidgetY+10+i, 0xFFFFFF);
         }
 
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
@@ -144,18 +151,18 @@ public class AbilityWidget extends AbstractWidget {
         //TODO custom button style
         //TODO functionality to unlock and disable/enable ability
         //TODO change text and logo (learn -> upgrade, disable <-> enable)
-        addWidget(new Button(x, y, 50, 20, new TranslatableComponent("ability.dropdown.learn"), (pButton) -> {
+        addWidget(new ExtendedButton(x, y, 50, 20, new TranslatableComponent("ability.dropdown.learn"), (pButton) -> {
 
         }));
 
-        addWidget(new Button(x+54, y, 50, 20, new TranslatableComponent("ability.dropdown.disable"), (pButton) -> {
+        addWidget(new ExtendedButton(x+54, y, 50, 20, new TranslatableComponent("ability.dropdown.disable"), (pButton) -> {
 
         }));
     }
 
     public void addSettingsWidgets(int x, int y) {
         //example
-        addWidget(new Button(x, y, 20, 20, new TextComponent(":)"), (pButton) -> {}));
+        addWidget(new ExtendedButton(x, y, 20, 20, new TextComponent(":)"), (pButton) -> {}));
     }
 
     //Yoinked from AdvancementWidget class
@@ -178,11 +185,12 @@ public class AbilityWidget extends AbstractWidget {
             addSettingsWidgets(this.x+4, this.height + 8 + this.y + this.splitDescription.size()*mc.font.lineHeight);
             addButtons(this.x+4, this.settingsHeight + this.height + 8 + this.y + this.splitDescription.size()*mc.font.lineHeight);
             for (AbstractWidget widget : widgets) {
+                widget.setBlitOffset(Math.max(0, widget.getBlitOffset()+this.getBlitOffset()+1));
                 addMethod.apply(widget);
             }
         } else {
-            this.setBlitOffset(1);
             for (AbstractWidget widget : widgets.toArray(new AbstractWidget[0])) {
+                this.setBlitOffset(0);
                 removeMethod.accept(widget);
                 widgets.remove(widget);
             }
@@ -199,6 +207,11 @@ public class AbilityWidget extends AbstractWidget {
     protected void removeWidget(AbstractWidget pWidget) {
         widgets.remove(pWidget);
     }
+
+    protected void renderString(PoseStack poseStack, String string ,int pX, int pY, int pColor) {
+        TextUtil.renderString(poseStack, string, pX, pY, this.getBlitOffset()+1, pColor);
+    }
+
 
     protected void render9Sprite(PoseStack pPoseStack, int pX, int pY, int pWidth, int pHeight, int pPadding, int pUWidth, int pVHeight, int pUOffset, int pVOffset) {
         this.blit(pPoseStack, pX, pY, pUOffset, pVOffset, pPadding, pPadding);
