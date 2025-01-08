@@ -18,14 +18,4 @@ public class TextUtil {
         GuiComponent.drawString(poseStack, Minecraft.getInstance().font, text, pX, pY, pColor);
         poseStack.translate(0,0,-blitOffset);
     }
-
-    public static void renderCenteredString(PoseStack pPoseStack, String pText, int pX, int pY, int blitOffset, int pColor) {
-        renderCenteredString(pPoseStack, new TextComponent(pText), pX, pY, blitOffset, pColor);
-    }
-
-    public static void renderCenteredString(PoseStack poseStack, Component pText, int pX, int pY, int blitOffset, int pColor) {
-        poseStack.translate(0,0, blitOffset);
-        GuiComponent.drawCenteredString(poseStack, Minecraft.getInstance().font, pText, pX, pY, pColor);
-        poseStack.translate(0,0, -blitOffset);
-    }
 }

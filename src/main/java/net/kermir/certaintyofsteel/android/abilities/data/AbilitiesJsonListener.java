@@ -3,6 +3,7 @@ package net.kermir.certaintyofsteel.android.abilities.data;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
+import net.kermir.certaintyofsteel.CertaintyOfSteel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
@@ -30,5 +31,6 @@ public class AbilitiesJsonListener extends SimpleJsonResourceReloadListener {
         pObject.forEach((resourceLocation, jsonElement) -> {
             EXTRA_ABILITY_DATA.put(resourceLocation.toString(), jsonElement);
         });
+        CertaintyOfSteel.LOGGER.info("Reloaded Android Ability JSONs");
     }
 }

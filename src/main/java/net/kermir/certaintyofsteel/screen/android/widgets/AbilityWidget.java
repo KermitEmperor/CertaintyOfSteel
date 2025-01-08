@@ -4,7 +4,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.kermir.certaintyofsteel.CertaintyOfSteel;
 import net.kermir.certaintyofsteel.android.abilities.util.Ability;
-import net.kermir.certaintyofsteel.screen.widgets.ExtendedButton;
 import net.kermir.certaintyofsteel.screen.widgets.TextUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
@@ -31,8 +30,8 @@ public class AbilityWidget extends AbstractWidget {
     private Function<AbstractWidget, GuiComponent> addMethod;
     private Consumer<AbstractWidget> removeMethod;
     private Ability ability;
-    private Component title;
-    private Component description;
+    public Component title;
+    public Component description;
     private List<String> splitDescription;
     protected int settingsHeight = 0;
     private List<AbstractWidget> widgets = new ArrayList<>();
@@ -54,7 +53,7 @@ public class AbilityWidget extends AbstractWidget {
         this.title = this.ability.name();
         this.description = this.ability.description();
         this.splitDescription = List.of(this.description.getString().split("\\R"));
-        this.setBlitOffset(0);
+        this.setBlitOffset(-2);
     }
 
     @Override
@@ -82,7 +81,7 @@ public class AbilityWidget extends AbstractWidget {
     }
 
     public void renderDropdown(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        this.setBlitOffset(3);
+        this.setBlitOffset(-1);
         int infoWidgetX = this.x+4;
         int infoWidgetY = this.y+8;
 
@@ -151,18 +150,18 @@ public class AbilityWidget extends AbstractWidget {
         //TODO custom button style
         //TODO functionality to unlock and disable/enable ability
         //TODO change text and logo (learn -> upgrade, disable <-> enable)
-        addWidget(new ExtendedButton(x, y, 50, 20, new TranslatableComponent("ability.dropdown.learn"), (pButton) -> {
+        addWidget(new Button(x, y, 50, 20, new TranslatableComponent("ability.dropdown.learn"), (pButton) -> {
 
         }));
 
-        addWidget(new ExtendedButton(x+54, y, 50, 20, new TranslatableComponent("ability.dropdown.disable"), (pButton) -> {
+        addWidget(new Button(x+54, y, 50, 20, new TranslatableComponent("ability.dropdown.disable"), (pButton) -> {
 
         }));
     }
 
     public void addSettingsWidgets(int x, int y) {
         //example
-        addWidget(new ExtendedButton(x, y, 20, 20, new TextComponent(":)"), (pButton) -> {}));
+        addWidget(new Button(x, y, 20, 20, new TextComponent(":)"), (pButton) -> {}));
     }
 
     //Yoinked from AdvancementWidget class
@@ -181,7 +180,7 @@ public class AbilityWidget extends AbstractWidget {
         this.changeFocus(this.isFocused());
         CertaintyOfSteel.LOGGER.info("{}",this.isFocused());
         if (this.isFocused()) {
-            this.setBlitOffset(2);
+            this.setBlitOffset(-1);
             addSettingsWidgets(this.x+4, this.height + 8 + this.y + this.splitDescription.size()*mc.font.lineHeight);
             addButtons(this.x+4, this.settingsHeight + this.height + 8 + this.y + this.splitDescription.size()*mc.font.lineHeight);
             for (AbstractWidget widget : widgets) {
@@ -190,7 +189,7 @@ public class AbilityWidget extends AbstractWidget {
             }
         } else {
             for (AbstractWidget widget : widgets.toArray(new AbstractWidget[0])) {
-                this.setBlitOffset(0);
+                this.setBlitOffset(-2);
                 removeMethod.accept(widget);
                 widgets.remove(widget);
             }

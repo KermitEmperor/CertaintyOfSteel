@@ -11,18 +11,17 @@ import net.kermir.certaintyofsteel.android.abilities.util.CustomAbilityWidget;
 import net.kermir.certaintyofsteel.registry.AbilityRegistry;
 import net.kermir.certaintyofsteel.screen.android.widgets.AbilityWidget;
 import net.kermir.certaintyofsteel.screen.android.util.DraggableAndroidBGScreen;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextComponent;
-import net.minecraft.world.phys.Vec2;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class AndroidAbilitiesScreen extends DraggableAndroidBGScreen {
     private AndroidPlayer android;
@@ -35,7 +34,7 @@ public class AndroidAbilitiesScreen extends DraggableAndroidBGScreen {
 
     @Override
     protected void init() {
-        this.addRenderableDraggableWidget(new Button(this.width/2+20, this.height/2-30, 20, 16, new TextComponent("Sex"), (button) -> { }));
+        this.addRenderableDraggableWidget(new Button(this.width/2+20, this.height/2-30, 65, 20, new TextComponent("Test button"), (button) -> { }));
 
         //TODO datapack system for location of the ability, item requirement (optional), and required unlocks
         //TODO lines that connect each ability according to above latter
@@ -61,6 +60,7 @@ public class AndroidAbilitiesScreen extends DraggableAndroidBGScreen {
                         this::addRenderableDraggableWidget,
                         this::removeWidget
                 );
+            widget.setBlitOffset(-2);
 
             this.addRenderableDraggableWidget(widget);
         }
@@ -90,25 +90,40 @@ public class AndroidAbilitiesScreen extends DraggableAndroidBGScreen {
             if (guiEventListener instanceof AbilityWidget abilityWidget) {
                 if (abilityWidget.isFocused()) {
                     Rectangle rectangle = abilityWidget.getDescriptionBounds();
-                    //descsBounds.add(rectangle);
+                    descsBounds.add(rectangle);
 
                     CertaintyOfSteel.LOGGER.info("X {} Y {} Width {} Height {}", rectangle.x, rectangle.y, rectangle.width, rectangle.height);
                 }
             }
         }
 
+        boolean isClickInsideABound = false;
+        for (Rectangle rectangle : descsBounds) {
+            isClickInsideABound |= rectangle.contains(pMouseX, pMouseY);
+            if (isClickInsideABound) break;
+        }
+
+
         for(GuiEventListener guieventlistener : this.children()) {
+            boolean isAbilityWidget = guieventlistener instanceof AbilityWidget;
 
-            //TODO however what is inside the desc should still be interactable bruh
+            //TODO Find a better solution to whatever the hell is this
 
-            boolean ret = true;
-            for (Rectangle rectangle : descsBounds) {
-                ret = !rectangle.contains(pMouseX, pMouseY);
-                if (!ret) break;
-            }
 
-            if (ret) {
+            //Least cursed boolean fuckery
+
+            if ((isAbilityWidget && ((AbilityWidget)guieventlistener).isFocused()) || !(isAbilityWidget) || (isAbilityWidget && !isClickInsideABound)) {
                 if (guieventlistener.mouseClicked(pMouseX, pMouseY, pButton)) {
+                    for (GuiEventListener listener : this.children().toArray(new GuiEventListener[0])) {
+                        if (guieventlistener instanceof AbilityWidget gwidget) {
+                            if (listener instanceof AbilityWidget widget) {
+                                if (widget.isFocused() && !Objects.equals(widget.toString(), gwidget.toString())) {
+                                    widget.onClick(0,0);
+                                    CertaintyOfSteel.LOGGER.info("purged");
+                                }
+                            }
+                        }
+                    }
                     this.setFocused(guieventlistener);
                     if (pButton == 0) {
                         this.setDragging(true);
