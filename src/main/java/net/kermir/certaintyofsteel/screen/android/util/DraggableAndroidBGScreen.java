@@ -13,10 +13,12 @@ import java.util.HashSet;
 public class DraggableAndroidBGScreen extends AndroidScreen {
     protected int xOffset;
     protected int yOffset;
+    protected int xOffsetGlobal;
+    protected int yOffsetGlobal;
     private double lastMouseX = 0;
     private double lastMouseY = 0;
     private boolean isDragging = false;
-    private final HashSet<AbstractWidget> draggableWidgets = new HashSet<>();
+    protected final HashSet<AbstractWidget> draggableWidgets = new HashSet<>();
 
     protected DraggableAndroidBGScreen(Component pTitle) {
         super(pTitle);
@@ -35,6 +37,9 @@ public class DraggableAndroidBGScreen extends AndroidScreen {
             widget.x += xOffset;
             widget.y += yOffset;
         }
+
+        xOffsetGlobal += xOffset;
+        yOffsetGlobal += yOffset;
 
         this.xOffset = 0;
         this.yOffset = 0;
@@ -85,5 +90,13 @@ public class DraggableAndroidBGScreen extends AndroidScreen {
             draggableWidgets.remove(abstractWidget);
         }
         super.removeWidget(pListener);
+    }
+
+    public void draggableHLine(PoseStack pPoseStack, int pMinX, int pMaxX, int pY, int pColor) {
+        this.hLine(pPoseStack, pMinX+this.xOffset, pMaxX+this.xOffset, pY+this.yOffset ,pColor);
+    }
+
+    public void draggableVLine(PoseStack pPoseStack, int pX, int pMinY, int pMaxY, int pColor) {
+        this.vLine(pPoseStack, pX+this.xOffset, pMinY+this.yOffset, pMaxY+this.yOffset, pColor);
     }
 }

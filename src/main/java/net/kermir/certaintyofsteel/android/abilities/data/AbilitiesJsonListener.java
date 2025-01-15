@@ -28,6 +28,7 @@ public class AbilitiesJsonListener extends SimpleJsonResourceReloadListener {
     @Override
     protected void apply(Map<ResourceLocation, JsonElement> pObject, ResourceManager pResourceManager, ProfilerFiller pProfiler) {
         EXTRA_ABILITY_DATA = new HashMap<>();
+        //TODO make data non overridable completely except if priority (an int) is higher
         pObject.forEach((resourceLocation, jsonElement) -> {
             EXTRA_ABILITY_DATA.put(resourceLocation.toString(), jsonElement);
         });

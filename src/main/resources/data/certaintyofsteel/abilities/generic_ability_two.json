@@ -1,4 +1,9 @@
 {
   "x": 20,
-  "y": 70
+  "y": 10,
+  "dependencies": {
+    "ability": {
+      "certaintyofsteel:generic_ability": 1
+    }
+  }
 }

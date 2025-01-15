@@ -9,6 +9,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraftforge.common.util.INBTSerializable;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.util.*;
@@ -29,18 +30,37 @@ public class AndroidPlayer implements Serializable, INBTSerializable<CompoundTag
         this.unlockedAbilities = new HashMap<>(unlockedAbilities);
     }
 
-    public void addUnlockedAbility(Ability ability) {
+    public boolean addUnlockedAbility(Ability ability) {
         if (ability.onAblityAdded(this)) {
+            if (hasAbility(ability)) return false;
             this.unlockedAbilities.put(ability.getRegistryName().toString(), ability.serializeNBT());
+            return true;
         }
+        return false;
     }
 
-    public void removeAbility(Ability ability) {
-        this.unlockedAbilities.remove(ability.getRegistryName().toString());
+    public boolean removeAbility(Ability ability) {
+        if (hasAbility(ability)) {
+            this.unlockedAbilities.remove(ability.getRegistryName().toString());
+            return true;
+        } else return false;
     }
 
     public int unlockedAbilitiesCount() {
         return this.unlockedAbilities.keySet().size();
+    }
+
+    public boolean hasAbility(Ability ability) {
+        if (ability == null)
+            return false;
+        return unlockedAbilities.containsKey(ability.getRegistryName().toString());
+    }
+
+    @Nullable
+    public CompoundTag getAbilityInfo(Ability ability) {
+        if (hasAbility(ability))
+            return unlockedAbilities.get(ability.getRegistryName().toString());
+        else return null;
     }
 
 

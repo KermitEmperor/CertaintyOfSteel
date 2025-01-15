@@ -8,5 +8,5 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 public interface CustomAbilityWidget {
-    AbilityWidget customWidget(int pX, int pY, Ability ability, Function<AbstractWidget, GuiComponent> addMethod, Consumer<AbstractWidget> removeMethod);
+    AbilityWidget customWidget(int pX, int pY, Ability ability, boolean isUnlocked, Function<AbstractWidget, GuiComponent> addMethod, Consumer<AbstractWidget> removeMethod);
 }

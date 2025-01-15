@@ -29,6 +29,7 @@ public class AbilityWidget extends AbstractWidget {
     private Minecraft mc;
     private Function<AbstractWidget, GuiComponent> addMethod;
     private Consumer<AbstractWidget> removeMethod;
+    private boolean isUnlocked;
     private Ability ability;
     public Component title;
     public Component description;
@@ -37,19 +38,13 @@ public class AbilityWidget extends AbstractWidget {
     private List<AbstractWidget> widgets = new ArrayList<>();
     protected Rectangle descriptionBounds = new Rectangle();
 
-    public AbilityWidget(int pX, int pY, Function<AbstractWidget, GuiComponent> addMethod, Consumer<AbstractWidget> removeMethod) {
-        this(pX, pY, null, addMethod, removeMethod);
-        this.mc = Minecraft.getInstance();
-        this.addMethod = addMethod;
-        this.removeMethod = removeMethod;
-    }
-
-    public AbilityWidget(int pX, int pY, Ability ability, Function<AbstractWidget, GuiComponent> addMethod, Consumer<AbstractWidget> removeMethod) {
+    public AbilityWidget(int pX, int pY, Ability ability, boolean isUnlocked, Function<AbstractWidget, GuiComponent> addMethod, Consumer<AbstractWidget> removeMethod) {
         super(pX, pY, 26, 26, new TextComponent(""));
         this.mc = Minecraft.getInstance();
         this.addMethod = addMethod;
         this.removeMethod = removeMethod;
         this.ability = ability;
+        this.isUnlocked = isUnlocked;
         this.title = this.ability.name();
         this.description = this.ability.description();
         this.splitDescription = List.of(this.description.getString().split("\\R"));
@@ -70,9 +65,16 @@ public class AbilityWidget extends AbstractWidget {
 
         if (this.visible) {
             if (!isMouseOver(pMouseX, pMouseY))
-                blit(pPoseStack, this.x, this.y,this.getBlitOffset(), 0, 26, 26, 26,256,256);
+                if (isUnlocked)
+                    blit(pPoseStack, this.x, this.y,this.getBlitOffset(), 0, 26, 26, 26,256,256);
+                else
+                    blit(pPoseStack, this.x, this.y,this.getBlitOffset(), 78, 26, 26, 26,256,256);
+
             else {
-                blit(pPoseStack, this.x, this.y,this.getBlitOffset(), 0, 0, 26, 26,256,256);
+                if (isUnlocked)
+                    blit(pPoseStack, this.x, this.y,this.getBlitOffset(), 0, 0, 26, 26,256,256);
+                else
+                    blit(pPoseStack, this.x, this.y,this.getBlitOffset(), 78, 0, 26, 26,256,256);
             }
         }
 
@@ -211,6 +213,9 @@ public class AbilityWidget extends AbstractWidget {
         TextUtil.renderString(poseStack, string, pX, pY, this.getBlitOffset()+1, pColor);
     }
 
+    public Ability getAbility() {
+        return ability;
+    }
 
     protected void render9Sprite(PoseStack pPoseStack, int pX, int pY, int pWidth, int pHeight, int pPadding, int pUWidth, int pVHeight, int pUOffset, int pVOffset) {
         this.blit(pPoseStack, pX, pY, pUOffset, pVOffset, pPadding, pPadding);

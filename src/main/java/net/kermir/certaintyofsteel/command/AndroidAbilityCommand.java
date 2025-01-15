@@ -11,6 +11,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.storage.DimensionDataStorage;
 
@@ -70,10 +71,19 @@ public class AndroidAbilityCommand {
         AndroidsSD androidsSD = CommandUtil.getAndroidSD(dataStorage);
 
         AndroidPlayer androidPlayer = androidsSD.getAndroid(player.getUUID());
-        if (add) androidPlayer.addUnlockedAbility(ability);
-        else androidPlayer.removeAbility(ability);
 
-        sourceStack.sendSuccess(new TextComponent("done"), false);
+        boolean result = false;
+
+        if (add) result = androidPlayer.addUnlockedAbility(ability);
+        else result = androidPlayer.removeAbility(ability);
+
+        if (add) {
+            if (result) sourceStack.sendSuccess(new TranslatableComponent("commands.ability.grant.success", "\""+ability.name().getString()+"\"" , player.getDisplayName().getString()), false);
+            else sourceStack.sendFailure(new TranslatableComponent("commands.ability.grant.failure", "\""+ability.name().getString()+"\"" , player.getDisplayName().getString()));
+        } else {
+            if (result) sourceStack.sendSuccess(new TranslatableComponent("commands.ability.revoke.success", "\""+ability.name().getString()+"\"" , player.getDisplayName().getString()), false);
+            else sourceStack.sendFailure(new TranslatableComponent("commands.ability.revoke.failure", "\""+ability.name().getString()+"\"" , player.getDisplayName().getString()));
+        }
 
         androidsSD.setDirty();
         dataStorage.save();

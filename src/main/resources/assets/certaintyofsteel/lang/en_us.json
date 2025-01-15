@@ -4,5 +4,10 @@
   "ability.dropdown.learn": "Learn",
   "ability.dropdown.upgrade": "Upgrade",
   "ability.dropdown.disable": "Disable",
-  "ability.dropdown.enable": "Enable"
+  "ability.dropdown.enable": "Enable",
+  "screen.ability.waring.resized": "Minecraft Window resized, screen closed to avoid visual bugs (don't worry its not a bug)",
+  "commands.ability.grant.success": "%s has been granted to %s",
+  "commands.ability.grant.failure": "%s couldn't been granted to %s because that player already has it",
+  "commands.ability.revoke.success": "%s has been revoked from %s",
+  "commands.ability.revoke.failure": "%s couldn't been revoked from %s because that player didn't have it"
 }

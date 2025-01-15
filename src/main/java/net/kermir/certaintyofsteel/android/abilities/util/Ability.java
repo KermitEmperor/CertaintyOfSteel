@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class Ability implements IForgeRegistryEntry<Ability>, INBTSerializable<CompoundTag> {
     protected int maxLevel = 0;
+    protected int level = 1;
     protected int cooldown = 20; //TICKS
 
     public Ability() {
@@ -34,13 +35,14 @@ public class Ability implements IForgeRegistryEntry<Ability>, INBTSerializable<C
     @Override
     public CompoundTag serializeNBT() {
         CompoundTag nbt = new CompoundTag();
+        nbt.putInt("level", level);
 
         return nbt;
     }
 
     @Override
     public void deserializeNBT(CompoundTag nbt) {
-
+        this.level = nbt.getInt("level");
     }
 
 
