@@ -1,8 +1,7 @@
 package net.kermir.certaintyofsteel.networking;
 
 import net.kermir.certaintyofsteel.CertaintyOfSteel;
-import net.kermir.certaintyofsteel.networking.packets.OpenAPScreen;
-import net.kermir.certaintyofsteel.networking.packets.RequestAPScreen;
+import net.kermir.certaintyofsteel.networking.packets.*;
 import net.kermir.certaintyofsteel.networking.packets.util.sample.GetAndroidPlayerPacket;
 import net.kermir.certaintyofsteel.networking.packets.util.sample.RequestAndroidPlayerPacket;
 import net.minecraft.resources.ResourceLocation;
@@ -52,6 +51,24 @@ public class PacketChannel {
                 .encoder(OpenAPScreen::encode)
                 .decoder(OpenAPScreen::new)
                 .consumer(OpenAPScreen::handle)
+                .add();
+
+        net.messageBuilder(RequestClientAndroidInstance.class, id(), NetworkDirection.PLAY_TO_SERVER)
+                .encoder(RequestClientAndroidInstance::encode)
+                .decoder(RequestClientAndroidInstance::new)
+                .consumer(RequestClientAndroidInstance::handle)
+                .add();
+
+        net.messageBuilder(UpdateClientAndroidInstance.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .encoder(UpdateClientAndroidInstance::encode)
+                .decoder(UpdateClientAndroidInstance::new)
+                .consumer(UpdateClientAndroidInstance::handle)
+                .add();
+
+        net.messageBuilder(UpdateServerAndroidInstance.class, id(), NetworkDirection.PLAY_TO_SERVER)
+                .encoder(UpdateServerAndroidInstance::encode)
+                .decoder(UpdateServerAndroidInstance::new)
+                .consumer(UpdateServerAndroidInstance::handle)
                 .add();
     }
 

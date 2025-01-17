@@ -29,6 +29,6 @@ public class OpenAPScreen extends GetAndroidPlayerPacket {
         if (playerInfo != null)
             playerName = playerInfo.getProfile().getName();
         else playerName = "null";
-        mc.setScreen(new AndroidAbilitiesScreen(playerName, androidPlayer));
+        mc.setScreen(new AndroidAbilitiesScreen(playerName));
     };
 }

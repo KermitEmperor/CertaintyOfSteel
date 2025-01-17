@@ -1,6 +1,8 @@
 package net.kermir.certaintyofsteel.android.abilities.util;
 
+import com.google.gson.JsonObject;
 import net.kermir.certaintyofsteel.android.AndroidPlayer;
+import net.kermir.certaintyofsteel.android.abilities.data.AbilitiesJsonListener;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
@@ -43,6 +45,27 @@ public class Ability implements IForgeRegistryEntry<Ability>, INBTSerializable<C
     @Override
     public void deserializeNBT(CompoundTag nbt) {
         this.level = nbt.getInt("level");
+    }
+
+    public boolean hasRequirements(AndroidPlayer androidPlayer) {
+
+        JsonObject json = AbilitiesJsonListener.EXTRA_ABILITY_DATA.get(this.getRegistryName().toString()).getAsJsonObject();
+        if (json != null) {
+
+            if (json.has("requirements")) {
+                JsonObject dependencies = json.getAsJsonObject("requirements");
+                if (dependencies.has("ability")) {
+                    JsonObject abilityDep = dependencies.getAsJsonObject("ability");
+                    for (String key : abilityDep.keySet()) {
+                        int levelRequirement = abilityDep.get(key).getAsInt();
+
+                        if (androidPlayer.getAbilityLevel(key) < levelRequirement) return false;
+                    }
+                }
+            }
+        }
+
+        return true;
     }
 
 

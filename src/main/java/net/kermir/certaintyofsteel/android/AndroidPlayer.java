@@ -17,7 +17,7 @@ import java.util.*;
 //Serializable interface is for the PacketObjectUtil
 //TODO well the whole AndroidPlayer class bruh
 public class AndroidPlayer implements Serializable, INBTSerializable<CompoundTag> {
-    private HashMap<String, CompoundTag> unlockedAbilities = new HashMap<>();
+    protected HashMap<String, CompoundTag> unlockedAbilities = new HashMap<>();
 
 
     //TODO implement remembering what abilities are unlocked
@@ -56,11 +56,39 @@ public class AndroidPlayer implements Serializable, INBTSerializable<CompoundTag
         return unlockedAbilities.containsKey(ability.getRegistryName().toString());
     }
 
+    public boolean hasAbility(String abilityRegistryName) {
+        return unlockedAbilities.containsKey(abilityRegistryName);
+    }
+
+
     @Nullable
     public CompoundTag getAbilityInfo(Ability ability) {
         if (hasAbility(ability))
             return unlockedAbilities.get(ability.getRegistryName().toString());
         else return null;
+    }
+
+    @Nullable
+    public CompoundTag getAbilityInfo(String abilityRegistryName) {
+        if (hasAbility(abilityRegistryName))
+            return unlockedAbilities.get(abilityRegistryName);
+        else return null;
+    }
+
+    public int getAbilityLevel(String abilityRegistryName) {
+        if (hasAbility(abilityRegistryName)) {
+            if (getAbilityInfo(abilityRegistryName).contains("level"))
+                return getAbilityInfo(abilityRegistryName).getInt("level");
+            else return 0;
+        } else return 0;
+    }
+
+    public int getAbilityLevel(Ability ability) {
+        if (hasAbility(ability)) {
+            if (getAbilityInfo(ability).contains("level"))
+                return getAbilityInfo(ability).getInt("level");
+            else return 0;
+        } else return 0;
     }
 
 

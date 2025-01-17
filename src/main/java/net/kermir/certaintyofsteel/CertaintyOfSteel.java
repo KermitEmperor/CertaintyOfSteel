@@ -2,6 +2,7 @@ package net.kermir.certaintyofsteel;
 
 import com.mojang.logging.LogUtils;
 import net.kermir.certaintyofsteel.android.abilities.data.AbilitiesJsonListener;
+import net.kermir.certaintyofsteel.networking.packets.UpdateClientAndroidInstance;
 import net.kermir.certaintyofsteel.registry.AbilityRegistry;
 import net.kermir.certaintyofsteel.command.*;
 import net.kermir.certaintyofsteel.command.util.AbilityArgument;
@@ -14,6 +15,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.commands.synchronization.ArgumentTypes;
 import net.minecraft.commands.synchronization.EmptyArgumentSerializer;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.ClientRegistry;
@@ -21,6 +23,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -61,6 +64,7 @@ public class CertaintyOfSteel {
         ForgeEventBus.register(this);
         ForgeEventBus.addListener(this::onCommandRegister);
         ForgeEventBus.addListener(this::onLevelLoad);
+        ForgeEventBus.addListener(this::onPlayerJoin);
     }
 
     private void setup(final FMLCommonSetupEvent event) {
@@ -102,12 +106,22 @@ public class CertaintyOfSteel {
             if (server != null) {
                 server.overworld().getDataStorage().computeIfAbsent(AndroidsSD::load, AndroidsSD::create, AndroidsSD.ID);
             }
+
         }
     }
 
     private void onNewRegistry(final NewRegistryEvent event) {
         CertaintyOfSteel.LOGGER.debug("Creating ability registry");
         AbilityRegistry.registerRegistry(event);
+    }
+
+    public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
+        if (event.getPlayer() instanceof ServerPlayer) {
+            if (AndroidsSD.getInstance().getAndroid(event.getPlayer().getUUID()) != null) {
+                PacketChannel.sendToClient(new UpdateClientAndroidInstance(event.getPlayer().getUUID(), AndroidsSD.getInstance().getAndroid(event.getPlayer().getUUID())),(ServerPlayer) event.getPlayer());
+                CertaintyOfSteel.LOGGER.info("Sent Android Instance update to {} on join", event.getPlayer().getName().getString());
+            }
+        }
     }
 
     @SubscribeEvent

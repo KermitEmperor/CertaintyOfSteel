@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.kermir.certaintyofsteel.CertaintyOfSteel;
 import net.kermir.certaintyofsteel.android.abilities.util.Ability;
+import net.kermir.certaintyofsteel.save.AndroidsSD;
 import net.kermir.certaintyofsteel.screen.widgets.TextUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
@@ -30,6 +31,7 @@ public class AbilityWidget extends AbstractWidget {
     private Function<AbstractWidget, GuiComponent> addMethod;
     private Consumer<AbstractWidget> removeMethod;
     private boolean isUnlocked;
+    private boolean isUnlockable;
     private Ability ability;
     public Component title;
     public Component description;
@@ -45,6 +47,7 @@ public class AbilityWidget extends AbstractWidget {
         this.removeMethod = removeMethod;
         this.ability = ability;
         this.isUnlocked = isUnlocked;
+        this.isUnlockable = false;
         this.title = this.ability.name();
         this.description = this.ability.description();
         this.splitDescription = List.of(this.description.getString().split("\\R"));
@@ -152,9 +155,11 @@ public class AbilityWidget extends AbstractWidget {
         //TODO custom button style
         //TODO functionality to unlock and disable/enable ability
         //TODO change text and logo (learn -> upgrade, disable <-> enable)
-        addWidget(new Button(x, y, 50, 20, new TranslatableComponent("ability.dropdown.learn"), (pButton) -> {
+        Button learnButton = (Button) addWidget(new Button(x, y, 50, 20, new TranslatableComponent("ability.dropdown.learn"), (pButton) -> {
 
         }));
+        setUnlockable(checkUnlockability());
+        learnButton.active = isUnlockable;
 
         addWidget(new Button(x+54, y, 50, 20, new TranslatableComponent("ability.dropdown.disable"), (pButton) -> {
 
@@ -175,6 +180,14 @@ public class AbilityWidget extends AbstractWidget {
     @Override
     public void updateNarration(NarrationElementOutput pNarrationElementOutput) {
         //No
+    }
+
+    public void setUnlockable(boolean newValue) {
+        this.isUnlockable = newValue;
+    }
+
+    public boolean checkUnlockability() {
+        return this.ability.hasRequirements(AndroidsSD.getInstance().getAndroid(mc.player.getUUID()));
     }
 
     @Override
