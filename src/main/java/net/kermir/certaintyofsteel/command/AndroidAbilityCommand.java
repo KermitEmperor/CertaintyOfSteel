@@ -88,8 +88,6 @@ public class AndroidAbilityCommand {
         androidsSD.setDirty();
         dataStorage.save();
 
-        //TODO implement ability grant and revoke
-
 
         return Command.SINGLE_SUCCESS;
     }

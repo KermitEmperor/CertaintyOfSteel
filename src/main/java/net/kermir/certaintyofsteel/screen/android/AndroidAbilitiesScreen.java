@@ -52,7 +52,6 @@ public class AndroidAbilitiesScreen extends DraggableAndroidBGScreen {
     protected void init() {
         this.addRenderableDraggableWidget(new Button(this.width/2+20, this.height/2-30, 65, 20, new TextComponent("Test button"), (button) -> { }));
 
-        //TODO datapack system for location of the ability, item requirement (optional), and required unlocks
         for (Ability ability : AbilityRegistry.ABILITIES_REGISTRY.getValues()) {
             JsonObject json = AbilitiesJsonListener.EXTRA_ABILITY_DATA.get(ability.getRegistryName().toString()).getAsJsonObject();
 

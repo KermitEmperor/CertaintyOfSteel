@@ -19,9 +19,6 @@ import java.util.*;
 public class AndroidPlayer implements Serializable, INBTSerializable<CompoundTag> {
     protected HashMap<String, CompoundTag> unlockedAbilities = new HashMap<>();
 
-
-    //TODO implement remembering what abilities are unlocked
-
     public AndroidPlayer() {
 
     }
@@ -118,8 +115,6 @@ public class AndroidPlayer implements Serializable, INBTSerializable<CompoundTag
             this.unlockedAbilities = androidPlayer.unlockedAbilities;
         }));
     }
-
-    //TODO Codec for AndroidPlayer
     public static final Codec<AndroidPlayer> ANDROID_PLAYER_CODEC = RecordCodecBuilder.create(instance ->
         instance.group(
                 //

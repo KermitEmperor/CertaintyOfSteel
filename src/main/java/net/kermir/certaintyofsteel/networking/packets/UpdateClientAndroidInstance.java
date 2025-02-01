@@ -11,7 +11,6 @@ import net.minecraftforge.network.NetworkEvent;
 
 import java.util.UUID;
 
-//TODO implement this
 public class UpdateClientAndroidInstance extends GetAndroidPlayerPacket {
     public UpdateClientAndroidInstance(UUID uuid, AndroidPlayer androidPlayer) {
         super(uuid, androidPlayer);
