@@ -1,6 +1,7 @@
 package net.kermir.certaintyofsteel;
 
 import com.mojang.logging.LogUtils;
+import net.kermir.certaintyofsteel.android.LocalAndroidPlayer;
 import net.kermir.certaintyofsteel.android.abilities.data.AbilitiesJsonListener;
 import net.kermir.certaintyofsteel.networking.packets.UpdateClientAndroidInstance;
 import net.kermir.certaintyofsteel.registry.AbilityRegistry;
@@ -11,6 +12,7 @@ import net.kermir.certaintyofsteel.networking.PacketChannel;
 import net.kermir.certaintyofsteel.networking.packets.RequestAPScreen;
 import net.kermir.certaintyofsteel.save.AndroidsSD;
 import net.kermir.certaintyofsteel.screen.MenuTypeRegistires;
+import net.kermir.certaintyofsteel.screen.android.AndroidAbilitiesScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.commands.synchronization.ArgumentTypes;
 import net.minecraft.commands.synchronization.EmptyArgumentSerializer;
@@ -19,6 +21,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.ClientRegistry;
+import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
@@ -64,6 +67,7 @@ public class CertaintyOfSteel {
         ForgeEventBus.register(this);
         ForgeEventBus.addListener(this::onCommandRegister);
         ForgeEventBus.addListener(this::onLevelLoad);
+        ForgeEventBus.addListener(this::onPlayerLeaveClient);
         ForgeEventBus.addListener(this::onPlayerJoin);
     }
 
@@ -106,8 +110,12 @@ public class CertaintyOfSteel {
             if (server != null) {
                 server.overworld().getDataStorage().computeIfAbsent(AndroidsSD::load, AndroidsSD::create, AndroidsSD.ID);
             }
-
         }
+    }
+
+    public void onPlayerLeaveClient(ClientPlayerNetworkEvent.LoggedOutEvent event) {
+        CertaintyOfSteel.LOGGER.info("LOGGED OUT");
+        LocalAndroidPlayer.reset();
     }
 
     private void onNewRegistry(final NewRegistryEvent event) {
@@ -124,6 +132,7 @@ public class CertaintyOfSteel {
         }
     }
 
+
     @SubscribeEvent
     public void jsonReading(AddReloadListenerEvent event) {
         event.addListener(AbilitiesJsonListener.instance);
@@ -137,8 +146,8 @@ public class CertaintyOfSteel {
 
 
         if (KeyBinding.OPEN_ANDROID_MENU_KEY.consumeClick()) {
-            //mc.setScreen(new AndroidScreen(mc.player.getDisplayName().getString(), null));
-            PacketChannel.sendToServer(new RequestAPScreen(mc.player.getUUID()));
+            if (LocalAndroidPlayer.INSTANCE != null)
+                mc.setScreen(new AndroidAbilitiesScreen(mc.player.getDisplayName().getString()));
         }
     }
 }

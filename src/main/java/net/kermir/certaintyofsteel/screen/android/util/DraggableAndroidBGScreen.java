@@ -1,5 +1,6 @@
 package net.kermir.certaintyofsteel.screen.android.util;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Widget;
@@ -15,6 +16,8 @@ public class DraggableAndroidBGScreen extends AndroidScreen {
     protected int yOffset;
     protected int xOffsetGlobal;
     protected int yOffsetGlobal;
+    private static int rememberedXOffset;
+    private static int rememberedYOffset;
     private double lastMouseX = 0;
     private double lastMouseY = 0;
     private boolean isDragging = false;
@@ -26,8 +29,10 @@ public class DraggableAndroidBGScreen extends AndroidScreen {
 
     @Override
     protected void init() {
-        this.xOffset = 0;
-        this.yOffset = 0;
+        if (rememberPosition()) {
+            xOffset = rememberedXOffset;
+            yOffset = rememberedYOffset;
+        }
         super.init();
     }
 
@@ -41,8 +46,11 @@ public class DraggableAndroidBGScreen extends AndroidScreen {
         xOffsetGlobal += xOffset;
         yOffsetGlobal += yOffset;
 
-        this.xOffset = 0;
-        this.yOffset = 0;
+        rememberedXOffset = xOffsetGlobal;
+        rememberedYOffset = yOffsetGlobal;
+
+        xOffset = 0;
+        yOffset = 0;
         super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
     }
 
@@ -60,8 +68,8 @@ public class DraggableAndroidBGScreen extends AndroidScreen {
             int deltaX = (int) (pMouseX - lastMouseX);
             int deltaY = (int) (pMouseY - lastMouseY);
 
-            this.xOffset += deltaX;
-            this.yOffset += deltaY;
+            xOffset += deltaX;
+            yOffset += deltaY;
 
             lastMouseX = pMouseX;
             lastMouseY = pMouseY;
@@ -90,6 +98,36 @@ public class DraggableAndroidBGScreen extends AndroidScreen {
             draggableWidgets.remove(abstractWidget);
         }
         super.removeWidget(pListener);
+    }
+
+    public static boolean rememberPosition() {
+        return true;
+    }
+
+    private static int ctrlPressCount = 0;
+    private static long lastPressTime = 0;
+
+    @Override
+    public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
+        //resets position
+        if (pKeyCode == InputConstants.KEY_LCONTROL) {
+            long currentTime = System.currentTimeMillis();
+
+            if (currentTime - lastPressTime <= 300) {
+                ctrlPressCount++;
+            } else {
+                ctrlPressCount = 1;
+            }
+
+            lastPressTime = currentTime;
+
+            if (ctrlPressCount == 2) {
+                this.xOffset = -xOffsetGlobal;
+                this.yOffset = -yOffsetGlobal;
+            }
+        }
+
+        return super.keyPressed(pKeyCode, pScanCode, pModifiers);
     }
 
     public void draggableHLine(PoseStack pPoseStack, int pMinX, int pMaxX, int pY, int pColor) {

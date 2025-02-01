@@ -23,6 +23,6 @@ public class RequestClientAndroidInstance extends RequestAndroidPlayerPacket {
 
         PacketChannel.sendToClient(
                 new UpdateClientAndroidInstance(androidUUID, AndroidsSD.getInstance().getAndroid(androidUUID)),
-                ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayer(androidUUID));
+                context.getSender());
     }
 }

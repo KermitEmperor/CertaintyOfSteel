@@ -9,6 +9,8 @@ import net.kermir.certaintyofsteel.android.LocalAndroidPlayer;
 import net.kermir.certaintyofsteel.android.abilities.data.AbilitiesJsonListener;
 import net.kermir.certaintyofsteel.android.abilities.util.Ability;
 import net.kermir.certaintyofsteel.android.abilities.util.CustomAbilityWidget;
+import net.kermir.certaintyofsteel.networking.PacketChannel;
+import net.kermir.certaintyofsteel.networking.packets.RequestAPScreen;
 import net.kermir.certaintyofsteel.registry.AbilityRegistry;
 import net.kermir.certaintyofsteel.screen.android.widgets.AbilityWidget;
 import net.kermir.certaintyofsteel.screen.android.util.DraggableAndroidBGScreen;
@@ -51,7 +53,6 @@ public class AndroidAbilitiesScreen extends DraggableAndroidBGScreen {
         this.addRenderableDraggableWidget(new Button(this.width/2+20, this.height/2-30, 65, 20, new TextComponent("Test button"), (button) -> { }));
 
         //TODO datapack system for location of the ability, item requirement (optional), and required unlocks
-        //TODO lines that connect each ability according to above latter
         for (Ability ability : AbilityRegistry.ABILITIES_REGISTRY.getValues()) {
             JsonObject json = AbilitiesJsonListener.EXTRA_ABILITY_DATA.get(ability.getRegistryName().toString()).getAsJsonObject();
 
@@ -209,8 +210,6 @@ public class AndroidAbilitiesScreen extends DraggableAndroidBGScreen {
 
             //TODO Find a better solution to whatever the hell is this
 
-            //TODO when clicking on empty hide the selected panel
-
             //Least cursed boolean fuckery
 
             if ((isAbilityWidget && ((AbilityWidget)guieventlistener).isFocused()) || !(isAbilityWidget) || (isAbilityWidget && !isClickInsideABound)) {
@@ -240,10 +239,7 @@ public class AndroidAbilitiesScreen extends DraggableAndroidBGScreen {
 
     @Override
     public void resize(Minecraft pMinecraft, int pWidth, int pHeight) {
-        super.resize(pMinecraft, pWidth, pHeight);
-        if (this.minecraft != null && this.minecraft.player != null)
-            this.minecraft.player.sendMessage(new TranslatableComponent("screen.ability.waring.resized").withStyle(ChatFormatting.GOLD), Util.NIL_UUID);
-        super.onClose();
+        pMinecraft.setScreen(new AndroidAbilitiesScreen(pMinecraft.player.getDisplayName().getString()));
     }
 
     @Override
