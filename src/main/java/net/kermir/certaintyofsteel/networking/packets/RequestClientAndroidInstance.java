@@ -9,6 +9,7 @@ import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.util.UUID;
 
+//Request FOR Client
 public class RequestClientAndroidInstance extends RequestAndroidPlayerPacket {
     public RequestClientAndroidInstance(UUID uuid) {
         super(uuid);

@@ -26,6 +26,8 @@ public class UpdateServerAndroidInstance extends GetAndroidPlayerPacket {
     public void action(NetworkEvent.Context context, AndroidPlayer androidPlayer, UUID androidUUID) {
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
         AndroidsSD sd = server.overworld().getDataStorage().computeIfAbsent(AndroidsSD::load, AndroidsSD::create, AndroidsSD.ID);
-        sd.addAndroid(Objects.requireNonNull(server.getPlayerList().getPlayer(androidUUID)));
+
+        if (!sd.addAndroid(Objects.requireNonNull(server.getPlayerList().getPlayer(androidUUID))))
+            sd.setAndroid(androidUUID, androidPlayer);
     }
 }

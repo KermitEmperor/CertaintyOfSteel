@@ -3,6 +3,7 @@ package net.kermir.certaintyofsteel.screen.android.widgets;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.kermir.certaintyofsteel.CertaintyOfSteel;
+import net.kermir.certaintyofsteel.android.LocalAndroidPlayer;
 import net.kermir.certaintyofsteel.android.abilities.util.Ability;
 import net.kermir.certaintyofsteel.save.AndroidsSD;
 import net.kermir.certaintyofsteel.screen.widgets.TextUtil;
@@ -156,7 +157,9 @@ public class AbilityWidget extends AbstractWidget {
         //TODO functionality to unlock and disable/enable ability
         //TODO change text and logo (learn -> upgrade, disable <-> enable)
         Button learnButton = (Button) addWidget(new Button(x, y, 50, 20, new TranslatableComponent("ability.dropdown.learn"), (pButton) -> {
-
+            LocalAndroidPlayer.INSTANCE.addUnlockedAbility(this.ability);
+            CertaintyOfSteel.LOGGER.info("what");
+            this.isUnlocked = true;
         }));
         setUnlockable(checkUnlockability());
         learnButton.active = isUnlockable;

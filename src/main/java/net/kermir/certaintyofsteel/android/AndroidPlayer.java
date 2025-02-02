@@ -57,9 +57,13 @@ public class AndroidPlayer implements Serializable, INBTSerializable<CompoundTag
         return unlockedAbilities.containsKey(abilityRegistryName);
     }
 
+    public Optional<Ability> ifHasAbility(Ability ability) {
+        return Optional.of(ability);
+    }
 
     @Nullable
     public CompoundTag getAbilityInfo(Ability ability) {
+
         if (hasAbility(ability))
             return unlockedAbilities.get(ability.getRegistryName().toString());
         else return null;
@@ -123,7 +127,6 @@ public class AndroidPlayer implements Serializable, INBTSerializable<CompoundTag
     );
 
     private static Map<String, CompoundTag> getUnlockedAbilitiesCodec(AndroidPlayer androidPlayer) {
-        CertaintyOfSteel.LOGGER.debug("{}", androidPlayer.unlockedAbilities);
         return androidPlayer.unlockedAbilities != null ? androidPlayer.unlockedAbilities : new HashMap<>();
     }
 }

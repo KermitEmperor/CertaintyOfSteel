@@ -6,6 +6,9 @@ import net.kermir.certaintyofsteel.android.AndroidPlayer;
 import net.kermir.certaintyofsteel.android.abilities.util.Ability;
 import net.kermir.certaintyofsteel.command.util.AbilityArgument;
 import net.kermir.certaintyofsteel.command.util.CommandUtil;
+import net.kermir.certaintyofsteel.networking.PacketChannel;
+import net.kermir.certaintyofsteel.networking.packets.RequestClientAndroidInstance;
+import net.kermir.certaintyofsteel.networking.packets.UpdateClientAndroidInstance;
 import net.kermir.certaintyofsteel.save.AndroidsSD;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -13,6 +16,7 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.world.level.storage.DimensionDataStorage;
 
 public class AndroidAbilityCommand {
@@ -83,6 +87,10 @@ public class AndroidAbilityCommand {
         } else {
             if (result) sourceStack.sendSuccess(new TranslatableComponent("commands.ability.revoke.success", "\""+ability.name().getString()+"\"" , player.getDisplayName().getString()), false);
             else sourceStack.sendFailure(new TranslatableComponent("commands.ability.revoke.failure", "\""+ability.name().getString()+"\"" , player.getDisplayName().getString()));
+        }
+
+        if (result) {
+            PacketChannel.sendToClient(new UpdateClientAndroidInstance(player.getUUID(), androidPlayer), player);
         }
 
         androidsSD.setDirty();

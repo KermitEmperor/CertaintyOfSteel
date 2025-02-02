@@ -59,6 +59,12 @@ public class PacketChannel {
                 .consumer(RequestClientAndroidInstance::handle)
                 .add();
 
+        net.messageBuilder(RequestServerAndroidInstance.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .encoder(RequestServerAndroidInstance::encode)
+                .decoder(RequestServerAndroidInstance::new)
+                .consumer(RequestServerAndroidInstance::handle)
+                .add();
+
         net.messageBuilder(UpdateClientAndroidInstance.class, id(), NetworkDirection.PLAY_TO_CLIENT)
                 .encoder(UpdateClientAndroidInstance::encode)
                 .decoder(UpdateClientAndroidInstance::new)
