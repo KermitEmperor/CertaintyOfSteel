@@ -5,10 +5,9 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.kermir.certaintyofsteel.CertaintyOfSteel;
 import net.kermir.certaintyofsteel.android.LocalAndroidPlayer;
 import net.kermir.certaintyofsteel.android.abilities.util.Ability;
-import net.kermir.certaintyofsteel.save.AndroidsSD;
-import net.kermir.certaintyofsteel.screen.widgets.TextUtil;
+import net.kermir.certaintyofsteel.screen.android.AndroidAbilitiesScreen;
+import net.kermir.certaintyofsteel.util.TextUtil;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -17,37 +16,33 @@ import net.minecraft.network.chat.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
-import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 public class AbilityWidget extends AbstractWidget {
     public static final ResourceLocation WIDGETS_LOCATION = new ResourceLocation(CertaintyOfSteel.MOD_ID,"textures/gui/android_panel_widgets.png");
     private Minecraft mc;
-    private Function<AbstractWidget, GuiComponent> addMethod;
-    private Consumer<AbstractWidget> removeMethod;
     private boolean isUnlocked;
     private boolean isUnlockable;
     private Ability ability;
+    private int level;
     public Component title;
     public Component description;
     private List<String> splitDescription;
     protected int settingsHeight = 0;
     private List<AbstractWidget> widgets = new ArrayList<>();
     protected Rectangle descriptionBounds = new Rectangle();
+    private AndroidAbilitiesScreen screen;
 
-    public AbilityWidget(int pX, int pY, Ability ability, boolean isUnlocked, Function<AbstractWidget, GuiComponent> addMethod, Consumer<AbstractWidget> removeMethod) {
+    public AbilityWidget(int pX, int pY, Ability ability, int level) {
         super(pX, pY, 26, 26, new TextComponent(""));
         this.mc = Minecraft.getInstance();
-        this.addMethod = addMethod;
-        this.removeMethod = removeMethod;
+        this.screen = (AndroidAbilitiesScreen) this.mc.screen;
         this.ability = ability;
-        this.isUnlocked = isUnlocked;
+        this.level = level;
+        this.isUnlocked = LocalAndroidPlayer.INSTANCE.hasAbility(ability);
         this.isUnlockable = false;
         this.title = this.ability.name();
         this.description = this.ability.description();
@@ -90,15 +85,12 @@ public class AbilityWidget extends AbstractWidget {
         this.setBlitOffset(-1);
         int infoWidgetX = this.x+4;
         int infoWidgetY = this.y+8;
-
         //Background
         //15 is for the learn/upgrade, enable/disable
         renderDropdownBg(pPoseStack, infoWidgetX, infoWidgetY, this.width , 27+20+mc.font.lineHeight*splitDescription.size(), pMouseX, pMouseY, pPartialTick);
-        //Settings
-        renderSettings(pPoseStack, infoWidgetX, infoWidgetY, pMouseX, pMouseY, pPartialTick);
 
         //Title
-        renderString(pPoseStack, this.title.getString(), infoWidgetX+this.width, infoWidgetY+1, 0xFFFFFF);
+        renderString(pPoseStack, this.title.getString() + " "+TextUtil.toRoman(this.level), infoWidgetX+this.width, infoWidgetY+1, 0xFFFFFF);
 
         //Desc
         int i = 0;
@@ -148,14 +140,7 @@ public class AbilityWidget extends AbstractWidget {
         this.descriptionBounds.setBounds(x-9, y-7, titleWidth, descHeight+11);
     }
 
-    public void renderSettings(PoseStack pPoseStack, int x, int y,int pMouseX, int pMouseY, float pPartialTick) {
-
-    }
-
     protected void addButtons(int x, int y) {
-        //TODO custom button style
-        //TODO functionality to unlock and disable/enable ability
-        //TODO change text and logo (learn -> upgrade, disable <-> enable)
         Button learnButton = (Button) addWidget(new Button(x, y, 50, 20, new TranslatableComponent("ability.dropdown.learn"), (pButton) -> {
             LocalAndroidPlayer.INSTANCE.addUnlockedAbility(this.ability);
             CertaintyOfSteel.LOGGER.info("what");
@@ -163,26 +148,9 @@ public class AbilityWidget extends AbstractWidget {
         }));
         setUnlockable(checkUnlockability());
         learnButton.active = isUnlockable;
-
-        addWidget(new Button(x+54, y, 50, 20, new TranslatableComponent("ability.dropdown.disable"), (pButton) -> {
-
-        }));
     }
-
-    public void addSettingsWidgets(int x, int y) {
-        //example
-        addWidget(new Button(x, y, 20, 20, new TextComponent(":)"), (pButton) -> {}));
-    }
-
-    //Yoinked from AdvancementWidget class
-    //AAAAAAAAAAAAAAAAAA
     private int getStringWidth(String string) {
         return mc.font.width(string);
-    }
-
-    @Override
-    public void updateNarration(NarrationElementOutput pNarrationElementOutput) {
-        //No
     }
 
     public void setUnlockable(boolean newValue) {
@@ -190,7 +158,7 @@ public class AbilityWidget extends AbstractWidget {
     }
 
     public boolean checkUnlockability() {
-        return this.ability.hasRequirements(AndroidsSD.getInstance().getAndroid(mc.player.getUUID()));
+        return this.ability.hasRequirements(LocalAndroidPlayer.INSTANCE);
     }
 
     @Override
@@ -199,16 +167,15 @@ public class AbilityWidget extends AbstractWidget {
         CertaintyOfSteel.LOGGER.info("{}",this.isFocused());
         if (this.isFocused()) {
             this.setBlitOffset(-1);
-            addSettingsWidgets(this.x+4, this.height + 8 + this.y + this.splitDescription.size()*mc.font.lineHeight);
             addButtons(this.x+4, this.settingsHeight + this.height + 8 + this.y + this.splitDescription.size()*mc.font.lineHeight);
             for (AbstractWidget widget : widgets) {
                 widget.setBlitOffset(Math.max(0, widget.getBlitOffset()+this.getBlitOffset()+1));
-                addMethod.apply(widget);
+                screen.exposedAddDraggableWidget(widget);
             }
         } else {
+            this.setBlitOffset(-2);
             for (AbstractWidget widget : widgets.toArray(new AbstractWidget[0])) {
-                this.setBlitOffset(-2);
-                removeMethod.accept(widget);
+                screen.exposedRemoveWidget(widget);
                 widgets.remove(widget);
             }
         }
@@ -216,13 +183,9 @@ public class AbilityWidget extends AbstractWidget {
         super.onClick(pMouseX, pMouseY);
     }
 
-    protected AbstractWidget addWidget(AbstractWidget pWidget) {
+    private AbstractWidget addWidget(AbstractWidget pWidget) {
         widgets.add(pWidget);
         return pWidget;
-    }
-
-    protected void removeWidget(AbstractWidget pWidget) {
-        widgets.remove(pWidget);
     }
 
     protected void renderString(PoseStack poseStack, String string ,int pX, int pY, int pColor) {
@@ -257,5 +220,10 @@ public class AbilityWidget extends AbstractWidget {
             }
         }
 
+    }
+
+    @Override
+    public void updateNarration(NarrationElementOutput pNarrationElementOutput) {
+        //No
     }
 }

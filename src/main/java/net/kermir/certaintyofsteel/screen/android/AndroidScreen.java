@@ -1,4 +1,4 @@
-package net.kermir.certaintyofsteel.screen.android.util;
+package net.kermir.certaintyofsteel.screen.android;
 
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;

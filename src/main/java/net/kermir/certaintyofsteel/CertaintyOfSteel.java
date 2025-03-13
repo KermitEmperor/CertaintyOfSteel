@@ -2,14 +2,14 @@ package net.kermir.certaintyofsteel;
 
 import com.mojang.logging.LogUtils;
 import net.kermir.certaintyofsteel.android.LocalAndroidPlayer;
-import net.kermir.certaintyofsteel.android.abilities.data.AbilitiesJsonListener;
+import net.kermir.certaintyofsteel.android.abilities.data.AbilitySettingsJL;
+import net.kermir.certaintyofsteel.android.abilities.data.AbilityTreeJL;
 import net.kermir.certaintyofsteel.networking.packets.UpdateClientAndroidInstance;
 import net.kermir.certaintyofsteel.registry.AbilityRegistry;
 import net.kermir.certaintyofsteel.command.*;
 import net.kermir.certaintyofsteel.command.util.AbilityArgument;
 import net.kermir.certaintyofsteel.keybinds.KeyBinding;
 import net.kermir.certaintyofsteel.networking.PacketChannel;
-import net.kermir.certaintyofsteel.networking.packets.RequestAPScreen;
 import net.kermir.certaintyofsteel.save.AndroidsSD;
 import net.kermir.certaintyofsteel.screen.MenuTypeRegistires;
 import net.kermir.certaintyofsteel.screen.android.AndroidAbilitiesScreen;
@@ -135,7 +135,9 @@ public class CertaintyOfSteel {
 
     @SubscribeEvent
     public void jsonReading(AddReloadListenerEvent event) {
-        event.addListener(AbilitiesJsonListener.instance);
+        //ORDER MATTERS!!!!!
+        event.addListener(AbilitySettingsJL.instance);
+        event.addListener(AbilityTreeJL.instance);
     }
 
     @OnlyIn(Dist.CLIENT)

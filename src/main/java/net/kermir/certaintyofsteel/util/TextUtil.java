@@ -1,12 +1,10 @@
-package net.kermir.certaintyofsteel.screen.widgets;
+package net.kermir.certaintyofsteel.util;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
-import net.minecraft.util.FormattedCharSequence;
 
 import java.util.TreeMap;
 

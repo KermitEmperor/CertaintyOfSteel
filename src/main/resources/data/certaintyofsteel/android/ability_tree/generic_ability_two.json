@@ -1,6 +1,5 @@
 {
   "x": 20,
-  "y": 10,
   "requirements": {
     "ability": {
       "certaintyofsteel:generic_ability": 1

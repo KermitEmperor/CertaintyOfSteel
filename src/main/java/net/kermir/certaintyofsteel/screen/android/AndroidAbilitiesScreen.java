@@ -4,33 +4,28 @@ import com.google.gson.JsonObject;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.kermir.certaintyofsteel.CertaintyOfSteel;
-import net.kermir.certaintyofsteel.android.AndroidPlayer;
 import net.kermir.certaintyofsteel.android.LocalAndroidPlayer;
-import net.kermir.certaintyofsteel.android.abilities.data.AbilitiesJsonListener;
+import net.kermir.certaintyofsteel.android.abilities.data.AbilitySettingsJL;
+import net.kermir.certaintyofsteel.android.abilities.data.AbilityTreeJL;
 import net.kermir.certaintyofsteel.android.abilities.util.Ability;
-import net.kermir.certaintyofsteel.android.abilities.util.CustomAbilityWidget;
-import net.kermir.certaintyofsteel.networking.PacketChannel;
-import net.kermir.certaintyofsteel.networking.packets.RequestAPScreen;
 import net.kermir.certaintyofsteel.registry.AbilityRegistry;
 import net.kermir.certaintyofsteel.screen.android.widgets.AbilityWidget;
-import net.kermir.certaintyofsteel.screen.android.util.DraggableAndroidBGScreen;
-import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
+import net.kermir.certaintyofsteel.util.json.JsonOptionalObject;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import org.apache.logging.log4j.core.util.UuidUtil;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import oshi.util.tuples.Quintet;
 
 import java.awt.*;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class AndroidAbilitiesScreen extends DraggableAndroidBGScreen {
     /**
@@ -52,8 +47,55 @@ public class AndroidAbilitiesScreen extends DraggableAndroidBGScreen {
     protected void init() {
         this.addRenderableDraggableWidget(new Button(this.width/2+20, this.height/2-30, 65, 20, new TextComponent("Test button"), (button) -> { }));
 
+        AbilityTreeJL.ABILITY_TREE_DATA.forEach((key, data) -> {
+            ResourceLocation resloc = ResourceLocation.tryParse(key);
+            if (AbilityRegistry.ABILITIES_REGISTRY.containsKey(resloc)) {
+
+                JsonOptionalObject ability_tree_data = new JsonOptionalObject(data.getAsJsonObject());
+                JsonOptionalObject ability_settings_data = new JsonOptionalObject(AbilitySettingsJL.ABILITY_SETTINGS_DATA.get(key).getAsJsonObject());
+
+                int start_x = this.width / 2 + ability_tree_data.getInt("x", 0);
+                int start_y = this.height / 2 + ability_tree_data.getInt("y", 0);
+
+                Ability ability = AbilityRegistry.ABILITIES_REGISTRY.getValue(resloc);
+
+                AbilityWidget firstWidget = new AbilityWidget(
+                        start_x,
+                        start_y,
+                        ability,
+                        1
+                );
+
+                firstWidget.setBlitOffset(-2);
+                this.addRenderableDraggableWidget(firstWidget);
+
+                ability_tree_data.ifHas("tiling", tiling_element -> {
+                    JsonOptionalObject tiling_data = new JsonOptionalObject(tiling_element.getAsJsonObject());
+
+                    int offset_x = tiling_data.getInt("offset_x", 35);
+                    int offset_y = tiling_data.getInt("offset_y", 0);
+                    for (int level = 1; level <= ability_settings_data.getInt("top_level", 1); level++) {
+
+                        CertaintyOfSteel.LOGGER.info("AA");
+
+                        AbilityWidget secondaryWidget = new AbilityWidget(
+                                start_x + offset_x * level,
+                                start_y + offset_y * level,
+                                ability,
+                                level
+                        );
+                        this.addRenderableDraggableWidget(secondaryWidget);
+                    }
+
+
+                    tiling_data.ifHas("exceptions");
+                });
+            }
+        });
+
+        /*
         for (Ability ability : AbilityRegistry.ABILITIES_REGISTRY.getValues()) {
-            JsonObject json = AbilitiesJsonListener.EXTRA_ABILITY_DATA.get(ability.getRegistryName().toString()).getAsJsonObject();
+            JsonObject json = AbilityTreeJL.ABILITY_TREE_DATA.get(ability.getRegistryName().toString()).getAsJsonObject();
 
             int x = this.width / 2;
             int y = this.height / 2;
@@ -63,24 +105,20 @@ public class AndroidAbilitiesScreen extends DraggableAndroidBGScreen {
                 y += json.get("y").getAsInt();
             }
 
-            AbilityWidget widget;
-            if (ability instanceof CustomAbilityWidget abilityWithWidget)
-                widget = abilityWithWidget.customWidget(x, y, ability, LocalAndroidPlayer.INSTANCE.hasAbility(ability) ,this::addRenderableDraggableWidget, this::removeWidget);
-            else
-                widget = new AbilityWidget(
-                        x,
-                        y,
-                        ability,
-                        LocalAndroidPlayer.INSTANCE.hasAbility(ability),
-                        this::addRenderableDraggableWidget,
-                        this::removeWidget
-                );
+            AbilityWidget widget = new AbilityWidget(
+                    x,
+                    y,
+                    ability,
+                    LocalAndroidPlayer.INSTANCE.hasAbility(ability)
+            );
+
             widget.setBlitOffset(-2);
 
             this.addRenderableDraggableWidget(widget);
         }
 
         this.buildLineCoordinates();
+         */
 
         //this.addRenderableDraggableWidget(new AbilityWidget(this.width/2, this.height/2, new TextComponent("a"), this::addRenderableDraggableWidget, this::removeWidget));
         super.init();
@@ -126,7 +164,7 @@ public class AndroidAbilitiesScreen extends DraggableAndroidBGScreen {
 
         for (Widget widget : this.renderables) {
             if (widget instanceof AbilityWidget abilityWidget) {
-                JsonObject json = AbilitiesJsonListener.EXTRA_ABILITY_DATA.get(abilityWidget.getAbility().getRegistryName().toString()).getAsJsonObject();
+                JsonObject json = AbilityTreeJL.ABILITY_TREE_DATA.get(abilityWidget.getAbility().getRegistryName().toString()).getAsJsonObject();
 
                 if (json != null) {
 
@@ -239,6 +277,14 @@ public class AndroidAbilitiesScreen extends DraggableAndroidBGScreen {
     @Override
     public void resize(Minecraft pMinecraft, int pWidth, int pHeight) {
         pMinecraft.setScreen(new AndroidAbilitiesScreen(pMinecraft.player.getDisplayName().getString()));
+    }
+
+    public <T extends GuiEventListener & Widget & NarratableEntry> T exposedAddDraggableWidget(T widget) {
+        return addRenderableDraggableWidget(widget);
+    }
+
+    public void exposedRemoveWidget(GuiEventListener widget) {
+        this.removeWidget(widget);
     }
 
     @Override

@@ -2,16 +2,14 @@ package net.kermir.certaintyofsteel.android.abilities.util;
 
 import com.google.gson.JsonObject;
 import net.kermir.certaintyofsteel.android.AndroidPlayer;
-import net.kermir.certaintyofsteel.android.abilities.data.AbilitiesJsonListener;
+import net.kermir.certaintyofsteel.android.abilities.data.AbilityTreeJL;
+import net.kermir.certaintyofsteel.util.json.JsonOptionalObject;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.registries.IForgeRegistryEntry;
-import org.jetbrains.annotations.Nullable;
 
 
 public class Ability implements IForgeRegistryEntry<Ability>, INBTSerializable<CompoundTag> {
@@ -29,6 +27,10 @@ public class Ability implements IForgeRegistryEntry<Ability>, INBTSerializable<C
 
     public final Component description() {
         return new TranslatableComponent(String.format("ability.%s.%s.description", getRegistryName().getNamespace(), getRegistryName().getPath()));
+    }
+
+    public void loadSettings(JsonObject jsonObject) {
+        this.maxLevel = jsonObject.get("max_level").getAsInt();
     }
 
 
@@ -49,7 +51,7 @@ public class Ability implements IForgeRegistryEntry<Ability>, INBTSerializable<C
 
     public boolean hasRequirements(AndroidPlayer androidPlayer) {
 
-        JsonObject json = AbilitiesJsonListener.EXTRA_ABILITY_DATA.get(this.getRegistryName().toString()).getAsJsonObject();
+        JsonObject json = AbilityTreeJL.ABILITY_TREE_DATA.get(this.getRegistryName().toString()).getAsJsonObject();
         if (json != null) {
 
             if (json.has("requirements")) {
